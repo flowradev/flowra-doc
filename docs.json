@@ -4,9 +4,9 @@
   "name": "Flowra",
   "description": "The all-in-one platform for building AI agents, workflows, and tools. Create powerful AI agents, build complex workflows, and access 20,000+ tools.",
   "colors": {
-    "primary": "#000000",
+    "primary": "#374151",
     "light": "#333333",
-    "dark": "#000000"
+    "dark": "#374151"
   },
   "favicon": "/favicon.svg",
   "api": { "openapi": "openapi.json" },
