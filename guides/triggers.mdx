@@ -1,0 +1,38 @@
+---
+title: "Triggers"
+description: "Schedule and event-based trigger instances"
+---
+
+## Overview
+
+Trigger instances define when and how workflows or automations run (e.g. on a schedule or an event). The API lets you create/update trigger instances, list active ones, and enable/disable or delete them.
+
+## Get active trigger instances
+
+**GET** `/api/v1/trigger_instances/active` returns active trigger instances with optional filters and pagination.
+
+| Query parameter | Description |
+|-----------------|-------------|
+| `connectedAccountIds` | Filter by connected account IDs |
+| `authConfigIds` | Filter by auth config IDs |
+| `trigger_ids`, `trigger_ids` (legacy) | Filter by trigger IDs |
+| `trigger_names`, `triggerNames` (legacy) | Filter by trigger names |
+| `showDisabled` | Include disabled triggers |
+| `page`, `limit`, `cursor` | Pagination |
+
+## Upsert trigger instance
+
+**POST** `/api/v1/trigger_instances/{slug}/upsert` creates or updates a trigger instance for the given `slug`. Request body: **UpsertTriggerInstanceDto** (see [API reference](/api-reference)). Use a stable slug to idempotently create or update the instance.
+
+## Update trigger status (enable/disable)
+
+**PATCH** `/api/v1/trigger_instances/manage/{triggerId}/status` enables or disables a trigger instance by ID. Send the desired status in the request body as defined in the API reference.
+
+## Delete trigger instance
+
+**DELETE** `/api/v1/trigger_instances/manage/{triggerId}` removes the trigger instance.
+
+## Related
+
+- [Connected accounts](/guides/connected-accounts) — Often used with triggers for OAuth context.
+- [API reference: trigger_instances](/api-reference) — Full request/response schemas.

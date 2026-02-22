@@ -1,0 +1,38 @@
+---
+title: "Connected accounts"
+description: "OAuth connected accounts and link creation"
+---
+
+## Overview
+
+Connected accounts represent a user’s OAuth connection to a third-party service (e.g. Slack, Google). You can list connected accounts, create link sessions so users can connect accounts, and get or delete a specific account.
+
+## List connected accounts
+
+**GET** `/api/v1/connected_accounts` returns paginated connected accounts with filters.
+
+| Query parameter | Description |
+|-----------------|-------------|
+| `toolkitSlugs` | Filter by toolkit slugs |
+| `statuses` | Filter by status (e.g. `ACTIVE`, `FAILED`) |
+| `authConfigIds` | Filter by auth config IDs |
+| `connectedAccountIds` | Filter by connected account IDs |
+| `eUIDs` | Filter by external user IDs |
+| `labels` | Filter by labels |
+| `orderBy` | `createdAt` or `updatedAt` |
+| `orderDirection` | `asc` or `desc` |
+| `cursor`, `limit` | Pagination (default limit 10) |
+
+## Create link session
+
+**POST** `/api/v1/connected_accounts/link` creates a new auth link session. Users open the returned URL to complete OAuth and connect their account. Request body: **CreateConnectedAccountLinkDto** (see [API reference](/api-reference)).
+
+## Get and delete
+
+- **GET** `/api/v1/connected_accounts/{nanoid}` — Get one connected account by ID.
+- **DELETE** `/api/v1/connected_accounts/{nanoid}` — Remove the connected account.
+
+## Related
+
+- [Auth configs](/guides/auth-configs) — OAuth/API key configs used by toolkits.
+- [API reference: connected_accounts](/api-reference) — Full schemas.

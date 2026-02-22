@@ -1,0 +1,51 @@
+---
+title: "Development"
+description: "Preview and contribute to the Flowra documentation site"
+---
+
+This page is for anyone editing or contributing to this documentation repo (not for Flowra API users).
+
+<Info>
+  **Prerequisites:** Node.js 19+ and a clone of this repo with a `docs.json` file.
+</Info>
+
+## Preview locally
+
+<Steps>
+  <Step title="Install Mintlify CLI">
+
+```bash
+npm i -g mint
+```
+  </Step>
+  <Step title="Run the preview server">
+
+From the repo root (where `docs.json` lives):
+
+```bash
+mint dev
+```
+
+Open **http://localhost:3000** to view the docs. The preview reloads as you edit.
+  </Step>
+</Steps>
+
+## Custom port
+
+```bash
+mint dev --port 3333
+```
+
+If the port is in use, Mintlify will try the next available port.
+
+## Check links
+
+To find broken links:
+
+```bash
+mint broken-links
+```
+
+## Formatting
+
+Use an MDX-capable formatter (e.g. [Prettier](https://prettier.io)) and, if you use VS Code, the [MDX extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting.

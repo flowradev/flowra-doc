@@ -1,0 +1,40 @@
+---
+title: "Auth configs"
+description: "Create and manage OAuth and API key configurations for tools"
+---
+
+## Overview
+
+Auth configs hold the OAuth or API key settings used by tools (e.g. Slack, Google). You create and manage them via the API so your tools can access third-party services.
+
+## List auth configs
+
+**GET** `/api/v1/auth_configs` returns a paginated list with optional filters.
+
+| Query parameter | Description |
+|-----------------|-------------|
+| `page`, `limit`, `offset` | Pagination |
+| `sortBy`, `sortOrder` | Sort (e.g. `createdAt`, `DESC`) |
+| `provider` | Filter by provider (e.g. composio, flowra) |
+| `toolkitSlug` | Filter by toolkit slug |
+| `search` | Search by name |
+| `showDisabled` | Include disabled configs (default `false`) |
+| `cursor` | Cursor for pagination |
+
+## Create auth config
+
+**POST** `/api/v1/auth_configs` creates a new auth configuration. Request body: **CreateAuthConfigDto** (see [API reference](/api-reference)). Use this when you need a new OAuth app or API key configuration for a toolkit.
+
+## Get auth config by ID
+
+**GET** `/api/v1/auth_configs/{nanoid}` returns a single auth config by its ID.
+
+## Update and delete
+
+- **PATCH** `/api/v1/auth_configs/{nanoid}` — Update an existing config.
+- **DELETE** `/api/v1/auth_configs/{nanoid}` — Delete an auth config.
+
+## Related
+
+- [Connected accounts](/guides/connected-accounts) — OAuth connected accounts and link creation.
+- [API reference: auth_configs](/api-reference) — Full schemas.

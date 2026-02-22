@@ -1,0 +1,27 @@
+---
+title: "MCP"
+description: "Model Context Protocol server integration"
+---
+
+## Overview
+
+Flowra exposes MCP (Model Context Protocol) endpoints so MCP clients can talk to your project’s MCP server. You use a **server ID** (created or configured in the dashboard) in the path.
+
+## Endpoints
+
+### SSE (Server-Sent Events)
+
+**GET** `/api/v1/mcp/{serverId}` — MCP over SSE. Clients connect to this URL with the appropriate `serverId` and use the **x-api-key** header for authentication.
+
+### JSON-RPC (POST)
+
+**POST** `/api/v1/mcp/{serverId}` — JSON-RPC 2.0 endpoint for MCP clients. Send MCP JSON-RPC requests in the body. Request schema: **McpRequestDto**; response: **McpJsonRpcResponseDto** (see [API reference](/api-reference)).
+
+## Authentication
+
+Both endpoints require API key authentication. Send your project API key in the **x-api-key** header.
+
+## Related
+
+- [API keys](/api-keys) — Create and manage the key used for MCP.
+- [API reference: mcp](/api-reference) — Request/response schemas.

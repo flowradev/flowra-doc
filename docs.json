@@ -1,0 +1,71 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Flowra",
+  "description": "The all-in-one platform for building AI agents, workflows, and tools. Create powerful AI agents, build complex workflows, and access 20,000+ tools.",
+  "colors": {
+    "primary": "#000000",
+    "light": "#333333",
+    "dark": "#000000"
+  },
+  "favicon": "/favicon.svg",
+  "api": { "openapi": "openapi.json" },
+  "navigation": {
+    "global": {
+      "anchors": [
+        { "anchor": "Dashboard", "icon": "rectangle-terminal", "href": "https://flowra.dev" },
+        { "anchor": "API", "icon": "code", "href": "/api-reference" }
+      ]
+    },
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": ["index", "quickstart", "authentication", "api-keys"]
+          },
+          {
+            "group": "Core concepts",
+            "pages": [
+              "guides/tools",
+              "guides/auth-configs",
+              "guides/triggers",
+              "guides/connected-accounts",
+              "guides/mcp"
+            ]
+          },
+          {
+            "group": "Contributing to docs",
+            "pages": ["development"]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "openapi": "openapi.json"
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [{ "label": "Support", "href": "mailto:support@flowra.dev" }],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://flowra.dev"
+    }
+  },
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude", "cursor", "vscode"]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/flowra-dev",
+      "x": "https://x.com/flowra_dev"
+    }
+  }
+}

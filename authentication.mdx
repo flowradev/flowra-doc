@@ -1,0 +1,58 @@
+---
+title: "Authentication"
+description: "Authenticate to the Flowra API with API keys"
+---
+
+## Overview
+
+Flowra API endpoints that support API key authentication accept your project API key via header. Create and manage keys in the dashboard under **Project → API Keys**.
+
+## API key authentication
+
+Send your API key in one of these ways:
+
+### Option 1: x-api-key header (recommended)
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/users/profile" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### Option 2: Authorization Bearer
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/users/profile" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Replace `YOUR_API_KEY` with your actual project API key.
+
+## Which endpoints use API keys?
+
+Endpoints that support API key auth are marked in the [API reference](/api-reference). They use the `x-api-key` security scheme. Examples:
+
+- **Users** — `GET /api/v1/users/profile`
+- **Tools** — list, get by ID, execute, execution logs
+- **Auth configs** — list, create, get, update, delete
+- **Trigger instances** — list, upsert, manage status
+- **Connected accounts** — list, link, get, delete
+- **LLM** — `POST /api/v1/llm/generate`
+- **MCP** — MCP-related endpoints
+
+Other endpoints (for example login/register) may use different auth (e.g. session or OAuth) and are not covered by the API key flow above.
+
+## Security
+
+<Warning>
+  **Do not expose API keys.** Do not commit them to version control, log them, or send them from client-side or public apps. Use environment variables or a secrets manager.
+</Warning>
+
+<Note>
+  If you need to rotate a key, create a new key in the dashboard, update your app, then revoke the old key.
+</Note>
+
+## Next steps
+
+- [API keys](/api-keys) — Where to create keys and naming.
+- [Quickstart](/quickstart) — First request with your key.
+- [API reference](/api-reference) — Per-endpoint auth details.

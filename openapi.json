@@ -1,0 +1,5487 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/users/profile": {
+      "get": {
+        "operationId": "UsersController_getProfile",
+        "x-apiKeyEnabled": true,
+        "summary": "Get current user profile",
+        "description": "Returns the profile of the authenticated user. Works with all authentication strategies (Local, JWT, Google OAuth, API Key). Use Authorization: Bearer <api-key> or X-API-Key header.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/llm/generate": {
+      "post": {
+        "operationId": "LLMController_generate",
+        "x-apiKeyEnabled": true,
+        "summary": "Generate text",
+        "description": "Generate text using the LLM. Used by JS sandbox invoke_llm helper.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateTextDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generated text"
+          },
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "LLM"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools": {
+      "get": {
+        "operationId": "ToolsController_getTools",
+        "x-apiKeyEnabled": true,
+        "summary": "List available tools",
+        "description": "Retrieve a paginated list of available tools with comprehensive filtering, sorting and search capabilities.",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search keyword for filtering results",
+            "schema": {
+              "example": "john doe",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip (for offset-based pagination)",
+            "schema": {
+              "minimum": 0,
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field name to sort by",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "DESC",
+              "example": "DESC",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of fields to include in response",
+            "schema": {
+              "example": "id,name,email",
+              "type": "string"
+            }
+          },
+          {
+            "name": "selectedToolSlugs",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated selected tool slugs for sort-order (e.g. put toolkits with these tools first)",
+            "schema": {
+              "example": "tool_a,tool_b",
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider",
+            "required": false,
+            "in": "query",
+            "description": "Filter tools by provider",
+            "schema": {
+              "example": "LOCAL",
+              "enum": [
+                "COMPOSIO",
+                "LOCAL"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "toolkitSlug",
+            "required": false,
+            "in": "query",
+            "description": "The slug of the toolkit to filter by",
+            "schema": {
+              "example": "slack",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toolSlugs",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of specific tool slugs to retrieve (overrides other filters)",
+            "schema": {
+              "example": "slack_send_message,slack_get_channels",
+              "type": "string"
+            }
+          },
+          {
+            "name": "authConfigIds",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of auth config IDs to filter tools by",
+            "schema": {
+              "example": "auth_config_1,auth_config_2",
+              "type": "string"
+            }
+          },
+          {
+            "name": "important",
+            "required": false,
+            "in": "query",
+            "description": "Filter to only show important/featured tools (set to \"true\" to enable)",
+            "schema": {
+              "example": "true",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags",
+            "required": false,
+            "in": "query",
+            "description": "Filter tools by one or more tags (can be specified multiple times)",
+            "schema": {
+              "example": "productivity,communication",
+              "type": "string"
+            }
+          },
+          {
+            "name": "scopes",
+            "required": false,
+            "in": "query",
+            "description": "Array of scopes to filter tools by",
+            "schema": {
+              "example": "read,write,admin",
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeDeprecated",
+            "required": false,
+            "in": "query",
+            "description": "Include deprecated tools in the response",
+            "schema": {
+              "default": false,
+              "example": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "toolkitVersions",
+            "required": false,
+            "in": "query",
+            "description": "Toolkit version specification. Use \"latest\" for latest versions or bracket notation for specific versions per toolkit.",
+            "schema": {
+              "example": "latest",
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Cursor for pagination. The cursor is a base64 encoded string of the page and limit.",
+            "schema": {
+              "example": "eyJwYWdlIjoxLCJsaW1pdCI6MjB9",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tools retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tools"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/execution-logs": {
+      "get": {
+        "operationId": "ToolsController_getToolExecutionLogs",
+        "x-apiKeyEnabled": true,
+        "summary": "List tool execution logs",
+        "description": "Retrieve paginated tool execution logs. Non-admin users see only their own logs.",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search keyword for filtering results",
+            "schema": {
+              "example": "john doe",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip (for offset-based pagination)",
+            "schema": {
+              "minimum": 0,
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field name to sort by",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "DESC",
+              "example": "DESC",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of fields to include in response",
+            "schema": {
+              "example": "id,name,email",
+              "type": "string"
+            }
+          },
+          {
+            "name": "selectedToolSlugs",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated selected tool slugs for sort-order (e.g. put toolkits with these tools first)",
+            "schema": {
+              "example": "tool_a,tool_b",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toolSlug",
+            "required": false,
+            "in": "query",
+            "description": "Filter by tool slug",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tool execution logs retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tools"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/byId/{id}": {
+      "get": {
+        "operationId": "ToolsController_getToolById",
+        "x-apiKeyEnabled": true,
+        "summary": "Get tool by slug",
+        "description": "Retrieve detailed information about a specific tool using its slug identifier.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": false,
+            "in": "query",
+            "description": "Optional version of the tool to retrieve",
+            "schema": {
+              "example": "2.0.0",
+              "type": "string"
+            }
+          },
+          {
+            "name": "toolkitVersions",
+            "required": false,
+            "in": "query",
+            "description": "Toolkit version specification. Use \"latest\" for latest versions or bracket notation for specific versions per toolkit.",
+            "schema": {
+              "example": "latest",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tool details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tools"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/execute/{toolSlug}": {
+      "post": {
+        "operationId": "ToolsController_executeTool",
+        "x-apiKeyEnabled": true,
+        "summary": "Execute tool",
+        "description": "Execute a specific tool operation with provided arguments and authentication.",
+        "parameters": [
+          {
+            "name": "toolSlug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteToolDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecuteToolResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Tools"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth_configs": {
+      "get": {
+        "operationId": "AuthConfigController_getAuthConfigs",
+        "x-apiKeyEnabled": true,
+        "summary": "List authentication configurations with optional filters",
+        "description": "Retrieve a paginated list of authentication configurations with optional filtering capabilities.",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search keyword for filtering results",
+            "schema": {
+              "example": "john doe",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip (for offset-based pagination)",
+            "schema": {
+              "minimum": 0,
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field name to sort by",
+            "schema": {
+              "example": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "DESC",
+              "example": "DESC",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of fields to include in response",
+            "schema": {
+              "example": "id,name,email",
+              "type": "string"
+            }
+          },
+          {
+            "name": "selectedToolSlugs",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated selected tool slugs for sort-order (e.g. put toolkits with these tools first)",
+            "schema": {
+              "example": "tool_a,tool_b",
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider",
+            "required": false,
+            "in": "query",
+            "description": "Provider to filter by (composio, flowra)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toolkitSlug",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated list of toolkit slugs to filter auth configs by",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deprecatedAppId",
+            "required": false,
+            "in": "query",
+            "description": "The app id to filter by",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deprecatedStatus",
+            "required": false,
+            "in": "query",
+            "description": "Status filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "showDisabled",
+            "required": false,
+            "in": "query",
+            "description": "Show disabled auth configs",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search auth configs by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Cursor for pagination. The cursor is a base64 encoded string of the page and limit.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auth configs retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth_configs"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "AuthConfigController_createAuthConfig",
+        "x-apiKeyEnabled": true,
+        "summary": "Create new authentication configuration",
+        "description": "Create a new authentication configuration for a toolkit.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Auth configuration data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAuthConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Auth config created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth_configs"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth_configs/{nanoid}": {
+      "get": {
+        "operationId": "AuthConfigController_getAuthConfigById",
+        "x-apiKeyEnabled": true,
+        "summary": "Get single authentication configuration by ID",
+        "description": "Retrieves detailed information about a specific authentication configuration using its unique identifier.",
+        "parameters": [
+          {
+            "name": "nanoid",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auth config retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth_configs"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "AuthConfigController_deleteAuthConfig",
+        "x-apiKeyEnabled": true,
+        "summary": "Delete an authentication configuration",
+        "description": "Soft-deletes an authentication configuration by marking it as deleted in the database. This operation cannot be undone.",
+        "parameters": [
+          {
+            "name": "nanoid",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auth config deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleSuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth_configs"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/mcp/{serverId}": {
+      "get": {
+        "operationId": "McpController_handleSse",
+        "x-apiKeyEnabled": true,
+        "parameters": [
+          {
+            "name": "serverId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "mcp"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "McpController_handlePost",
+        "x-apiKeyEnabled": true,
+        "summary": "MCP protocol (POST)",
+        "description": "JSON-RPC 2.0 endpoint for MCP clients",
+        "parameters": [
+          {
+            "name": "serverId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/McpRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpJsonRpcResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "mcp"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trigger_instances/{slug}/upsert": {
+      "post": {
+        "operationId": "TriggersController_upsertTriggerInstance",
+        "x-apiKeyEnabled": true,
+        "summary": "Upsert trigger instance",
+        "description": "Create or update a trigger instance with the specified slug and configuration.",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertTriggerInstanceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "trigger_instances"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trigger_instances/active": {
+      "get": {
+        "operationId": "TriggersController_getTriggerInstances",
+        "x-apiKeyEnabled": true,
+        "summary": "Get active trigger instances",
+        "description": "Retrieve active trigger instances with optional filtering and pagination.",
+        "parameters": [
+          {
+            "name": "connectedAccountIds",
+            "required": false,
+            "in": "query",
+            "description": "Array of connected account IDs to filter triggers by",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "authConfigIds",
+            "required": false,
+            "in": "query",
+            "description": "Array of auth config IDs to filter triggers by",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "trigger_ids",
+            "required": false,
+            "in": "query",
+            "description": "Array of trigger IDs to filter triggers by",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "trigger_names",
+            "required": false,
+            "in": "query",
+            "description": "Array of trigger names to filter triggers by",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "showDisabled",
+            "required": false,
+            "in": "query",
+            "description": "When set to true, includes disabled triggers in the response",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number for pagination. Starts from 1",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Cursor for pagination. The cursor is a base64 encoded string of the page and limit",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "triggerIds",
+            "required": false,
+            "in": "query",
+            "description": "Array of trigger IDs to filter triggers by (legacy)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "triggerNames",
+            "required": false,
+            "in": "query",
+            "description": "Array of trigger names to filter triggers by (legacy)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "deprecatedConnectedAccountUuids",
+            "required": false,
+            "in": "query",
+            "description": "Array of connected account UUIDs to filter triggers by (deprecated)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "deprecatedAuthConfigUuids",
+            "required": false,
+            "in": "query",
+            "description": "Array of auth config UUIDs to filter triggers by (deprecated)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "trigger_instances"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trigger_instances/manage/{triggerId}/status": {
+      "patch": {
+        "operationId": "TriggersController_updateTriggerInstanceStatus",
+        "x-apiKeyEnabled": true,
+        "summary": "Update trigger instance status (enable/disable)",
+        "description": "Enable or disable a trigger instance by its ID.",
+        "parameters": [
+          {
+            "name": "triggerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "trigger_instances"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trigger_instances/manage/{triggerId}": {
+      "delete": {
+        "operationId": "TriggersController_deleteTriggerInstanceManage",
+        "x-apiKeyEnabled": true,
+        "summary": "Delete trigger instance by ID",
+        "description": "Delete a trigger instance by its ID.",
+        "parameters": [
+          {
+            "name": "triggerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "trigger_instances"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/connected_accounts": {
+      "get": {
+        "operationId": "ConnectedAccountsController_getConnectedAccounts",
+        "x-apiKeyEnabled": true,
+        "parameters": [
+          {
+            "name": "toolkitSlugs",
+            "required": false,
+            "in": "query",
+            "description": "The toolkit slugs of the connected accounts",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "statuses",
+            "required": false,
+            "in": "query",
+            "description": "The status of the connected account",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ConnectedAccountStatus"
+              }
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "The cursor to paginate through the connected accounts",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "The limit of the connected accounts to return",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "eUIDs",
+            "required": false,
+            "in": "query",
+            "description": "The external user ids (eUID) of the connected accounts",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "authConfigIds",
+            "required": false,
+            "in": "query",
+            "description": "The auth config ids of the connected accounts",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "connectedAccountIds",
+            "required": false,
+            "in": "query",
+            "description": "The connected account ids to filter by",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "description": "The order by of the connected accounts",
+            "schema": {
+              "enum": [
+                "createdAt",
+                "updatedAt"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderDirection",
+            "required": false,
+            "in": "query",
+            "description": "The order direction of the connected accounts",
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "labels",
+            "required": false,
+            "in": "query",
+            "description": "The labels of the connected accounts",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved connected accounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetConnectedAccountsResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Unprocessable entity"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "tags": [
+          "connected_accounts"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/connected_accounts/link": {
+      "post": {
+        "operationId": "ConnectedAccountsController_createConnectedAccountLink",
+        "x-apiKeyEnabled": true,
+        "summary": "Create a new auth link session",
+        "description": "Creates a new authentication link session that users can use to connect their accounts",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Connected account link creation data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConnectedAccountLinkDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created auth link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConnectedAccountLinkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "connected_accounts"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    },
+    "/api/v1/connected_accounts/{nanoid}": {
+      "delete": {
+        "operationId": "ConnectedAccountsController_deleteConnectedAccount",
+        "x-apiKeyEnabled": true,
+        "summary": "Delete a connected account",
+        "description": "Soft-deletes a connected account by marking it as disabled in the database. This prevents the account from being used for API calls but preserves the record for audit purposes.",
+        "parameters": [
+          {
+            "name": "nanoid",
+            "required": true,
+            "in": "path",
+            "description": "The unique identifier (nanoid) of the connected account",
+            "schema": {
+              "example": "con_1a2b3c4d5e6f",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted the connected account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleSuccessResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "connected_accounts"
+        ],
+        "security": [
+          {
+            "x-api-key": []
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Flowra API (API Key Endpoints)",
+    "description": "**Flowra** is an AI-powered platform for building agents, workflows, and integrations.\n\n### Capabilities\n- **Tools & Toolkits** – Define and group tools for agents and workflows.\n- **Workflows** – Orchestrate steps and automate processes.\n- **Triggers** – Schedule or event-based execution.\n- **Auth & Connections** – OAuth, API keys, and connected accounts.\n- **MCP** – Model Context Protocol server integration.\n- **Knowledge / RAG** – Add files and URLs for retrieval-augmented generation.\n\n### Authentication\nUse the **x-api-key** header with a project API key to access endpoints that support API Key auth. Create and manage API keys in the dashboard under your project settings.\n\nOnly endpoints that support API Key authentication via the @ApiKeyEnabled() decorator.",
+    "version": "1.0",
+    "contact": {
+      "name": "Flowra",
+      "url": "https://flowra.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Login, register, and token management"
+    },
+    {
+      "name": "users",
+      "description": "User profile and management"
+    },
+    {
+      "name": "general",
+      "description": "General app settings"
+    },
+    {
+      "name": "Tools",
+      "description": "List, execute, and manage tools for agents and workflows"
+    },
+    {
+      "name": "Toolkits",
+      "description": "Group tools into toolkits for reuse"
+    },
+    {
+      "name": "workflows",
+      "description": "Create and run workflows"
+    },
+    {
+      "name": "triggers",
+      "description": "Schedule and event-based triggers"
+    },
+    {
+      "name": "auth-config",
+      "description": "OAuth and API key auth configs for tools"
+    },
+    {
+      "name": "connected-accounts",
+      "description": "OAuth connected accounts and link creation"
+    },
+    {
+      "name": "mcp",
+      "description": "MCP server management"
+    },
+    {
+      "name": "project",
+      "description": "Projects and API keys"
+    },
+    {
+      "name": "AI Gateway",
+      "description": "AI gateway proxy"
+    },
+    {
+      "name": "embed",
+      "description": "Embed and widget endpoints"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:10000/api",
+      "description": "Current environment"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "x-api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Project API key. Create and manage keys in the dashboard under Project → API Keys. Send as header: x-api-key: <your-key>"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "description": "User password",
+            "example": "password123"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name",
+            "example": "Doe"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "SuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Success status",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Operation completed successfully"
+          },
+          "data": {
+            "type": "object",
+            "description": "Response data"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "description": "User password",
+            "example": "password123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "SimpleSuccessResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Success status",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Operation completed successfully"
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "CreateApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name for the API Key (for identification)",
+            "example": "Production API Key"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description for the API Key",
+            "example": "API Key for production environment"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "Optional expiration date (ISO 8601 format)",
+            "example": "2024-12-31T23:59:59Z"
+          },
+          "permissions": {
+            "description": "Optional array of permissions",
+            "example": [
+              "read:users",
+              "write:users"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "PaginatedResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Success status",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message",
+            "example": "Data retrieved successfully"
+          },
+          "data": {
+            "type": "array",
+            "description": "Array of items"
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 100
+          },
+          "page": {
+            "type": "number",
+            "description": "Current page number (1-based)",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "description": "Number of items per page",
+            "example": 20
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total number of pages",
+            "example": 5
+          },
+          "hasNextPage": {
+            "type": "boolean",
+            "description": "Whether there is a next page",
+            "example": true
+          },
+          "hasPreviousPage": {
+            "type": "boolean",
+            "description": "Whether there is a previous page",
+            "example": false
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data",
+          "total"
+        ]
+      },
+      "UpdateApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name for the API Key (for identification)",
+            "example": "Production API Key"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description for the API Key",
+            "example": "API Key for production environment"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "Optional expiration date (ISO 8601 format)",
+            "example": "2024-12-31T23:59:59Z"
+          },
+          "permissions": {
+            "description": "Optional array of permissions",
+            "example": [
+              "read:users",
+              "write:users"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateUserRolesDto": {
+        "type": "object",
+        "properties": {
+          "roleNames": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "user"
+              ]
+            },
+            "description": "Array of role names to assign to the user",
+            "example": [
+              "admin",
+              "Supplier"
+            ]
+          }
+        },
+        "required": [
+          "roleNames"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "description": "User password",
+            "example": "password123"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name",
+            "example": "Doe"
+          },
+          "roleNames": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "user"
+              ]
+            },
+            "description": "Array of role names to assign to the user",
+            "example": [
+              "admin",
+              "Supplier"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "roleNames"
+        ]
+      },
+      "PurchaseDto": {
+        "type": "object",
+        "properties": {
+          "paymentType": {
+            "enum": [
+              "PLAN",
+              "CREDIT"
+            ],
+            "type": "string",
+            "description": "نوع پرداخت",
+            "example": "PLAN"
+          },
+          "itemId": {
+            "type": "string",
+            "description": "شناسه پلن یا بسته اعتباری",
+            "example": "uuid"
+          },
+          "durationId": {
+            "type": "string",
+            "description": "شناسه مدت زمان پلن (فقط برای PLAN)",
+            "example": "uuid"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "نام Gateway پرداخت",
+            "example": "zarinpal"
+          },
+          "autoRenew": {
+            "type": "boolean",
+            "description": "تمدید خودکار (فقط برای PLAN)",
+            "example": false
+          }
+        },
+        "required": [
+          "paymentType",
+          "itemId",
+          "paymentMethod"
+        ]
+      },
+      "PaymentCallbackDto": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string",
+            "description": "شناسه پرداخت",
+            "example": "uuid"
+          },
+          "gatewayTransactionId": {
+            "type": "string",
+            "description": "شناسه تراکنش در Gateway",
+            "example": "transaction-id"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "FAILED",
+              "CANCELLED",
+              "REFUNDED"
+            ],
+            "type": "string",
+            "description": "وضعیت پرداخت",
+            "example": "COMPLETED"
+          },
+          "gatewayResponse": {
+            "type": "object",
+            "description": "پاسخ کامل Gateway"
+          }
+        },
+        "required": [
+          "paymentId",
+          "gatewayTransactionId",
+          "status"
+        ]
+      },
+      "UseCreditFeatureDto": {
+        "type": "object",
+        "properties": {
+          "featureId": {
+            "type": "string",
+            "description": "شناسه ویژگی اعتباری",
+            "example": "uuid"
+          }
+        },
+        "required": [
+          "featureId"
+        ]
+      },
+      "RequestPaymentDto": {
+        "type": "object",
+        "properties": {
+          "paymentType": {
+            "enum": [
+              "PLAN",
+              "CREDIT"
+            ],
+            "type": "string",
+            "description": "نوع پرداخت"
+          },
+          "itemId": {
+            "type": "string",
+            "description": "شناسه آیتم (Plan ID یا Credit ID)"
+          },
+          "durationId": {
+            "type": "string",
+            "description": "شناسه مدت زمان (فقط برای PLAN)"
+          },
+          "gatewayType": {
+            "enum": [
+              "ZARINPAL",
+              "IDPAY",
+              "ZIBAL",
+              "PAYPAL",
+              "STRIPE",
+              "NOWPAYMENT"
+            ],
+            "type": "string",
+            "description": "نوع درگاه پرداخت (اختیاری - در صورت عدم ارسال، مناسب‌ترین درگاه انتخاب می‌شود)"
+          },
+          "redirectUrl": {
+            "type": "string",
+            "description": "URL سفارشی بعد از پرداخت"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "اطلاعات اضافی"
+          }
+        },
+        "required": [
+          "paymentType",
+          "itemId"
+        ]
+      },
+      "RequestPaymentResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Success status",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Operation completed successfully"
+          },
+          "data": {
+            "type": "object",
+            "description": "Response data"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      },
+      "CreatePaymentGatewayConfigDto": {
+        "type": "object",
+        "properties": {
+          "gatewayType": {
+            "enum": [
+              "ZARINPAL",
+              "IDPAY",
+              "ZIBAL",
+              "PAYPAL",
+              "STRIPE",
+              "NOWPAYMENT"
+            ],
+            "type": "string",
+            "description": "نوع درگاه"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "فعال/غیرفعال"
+          },
+          "isSandbox": {
+            "type": "boolean",
+            "description": "حالت Sandbox"
+          },
+          "config": {
+            "type": "object",
+            "description": "تنظیمات درگاه (API Key, Secret Key, etc.)"
+          },
+          "supportedCurrencies": {
+            "description": "ارزهای پشتیبانی شده",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "feePercent": {
+            "type": "number",
+            "description": "درصد کارمزد"
+          },
+          "minAmount": {
+            "type": "number",
+            "description": "حداقل مبلغ"
+          },
+          "maxAmount": {
+            "type": "number",
+            "description": "حداکثر مبلغ"
+          },
+          "displayOrder": {
+            "type": "number",
+            "description": "ترتیب نمایش"
+          }
+        },
+        "required": [
+          "gatewayType"
+        ]
+      },
+      "PaymentGatewayConfig": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "gatewayType": {
+            "enum": [
+              "ZARINPAL",
+              "IDPAY",
+              "ZIBAL",
+              "PAYPAL",
+              "STRIPE",
+              "NOWPAYMENT"
+            ],
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isSandbox": {
+            "type": "boolean"
+          },
+          "supportedCurrencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "feePercent": {
+            "type": "number"
+          },
+          "minAmount": {
+            "type": "number"
+          },
+          "maxAmount": {
+            "type": "number"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "gatewayType",
+          "isActive",
+          "isSandbox",
+          "supportedCurrencies",
+          "feePercent",
+          "minAmount",
+          "maxAmount",
+          "displayOrder",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdatePaymentGatewayConfigDto": {
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean",
+            "description": "فعال/غیرفعال"
+          },
+          "isSandbox": {
+            "type": "boolean",
+            "description": "حالت Sandbox"
+          },
+          "config": {
+            "type": "object",
+            "description": "تنظیمات درگاه"
+          },
+          "supportedCurrencies": {
+            "description": "ارزهای پشتیبانی شده",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "feePercent": {
+            "type": "number",
+            "description": "درصد کارمزد"
+          },
+          "minAmount": {
+            "type": "number",
+            "description": "حداقل مبلغ"
+          },
+          "maxAmount": {
+            "type": "number",
+            "description": "حداکثر مبلغ"
+          },
+          "displayOrder": {
+            "type": "number",
+            "description": "ترتیب نمایش"
+          }
+        }
+      },
+      "ConvertCurrencyDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "مبلغ"
+          },
+          "fromCurrency": {
+            "type": "string",
+            "description": "کد ارز مبدأ"
+          },
+          "toCurrency": {
+            "type": "string",
+            "description": "کد ارز مقصد"
+          }
+        },
+        "required": [
+          "amount",
+          "fromCurrency",
+          "toCurrency"
+        ]
+      },
+      "UpdateCurrencyRateDto": {
+        "type": "object",
+        "properties": {
+          "rate": {
+            "type": "number",
+            "description": "نرخ تبدیل به ارز پایه"
+          }
+        },
+        "required": [
+          "rate"
+        ]
+      },
+      "UpdateGeneralSettingsDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Unique name for the settings",
+            "example": "app-config"
+          },
+          "fields": {
+            "type": "object",
+            "description": "Fields object matching OpenAPI schema",
+            "example": {
+              "field1": "string",
+              "field2": 123,
+              "field3": true
+            },
+            "additionalProperties": true
+          },
+          "value": {
+            "type": "object",
+            "description": "Value for the settings (jsonb)",
+            "example": {
+              "key1": "value1",
+              "key2": 123,
+              "key3": true
+            },
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateAllSettingsDto": {
+        "type": "object",
+        "properties": {
+          "settings": {
+            "description": "Array of settings to update",
+            "example": [
+              {
+                "name": "app-config",
+                "fields": {
+                  "field1": "string",
+                  "field2": 123
+                },
+                "value": {
+                  "key1": "value1",
+                  "key2": 123
+                }
+              },
+              {
+                "name": "theme-config",
+                "fields": {
+                  "theme": "dark"
+                },
+                "value": {
+                  "primaryColor": "#000000"
+                }
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateGeneralSettingsDto"
+            }
+          }
+        },
+        "required": [
+          "settings"
+        ]
+      },
+      "FileType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "maxSize": {
+            "type": "number"
+          },
+          "mimeTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "displayFormats": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPublic": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "activeStatus": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "maxSize",
+          "mimeTypes",
+          "displayFormats",
+          "isPublic"
+        ]
+      },
+      "CreditInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Success status",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Operation completed successfully"
+          },
+          "data": {
+            "type": "object",
+            "description": "Response data"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      },
+      "ModelsListResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Success status",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message",
+            "example": "Data retrieved successfully"
+          },
+          "data": {
+            "type": "array",
+            "description": "Array of items"
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of items across all pages",
+            "example": 100
+          },
+          "page": {
+            "type": "number",
+            "description": "Current page number (1-based)",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "description": "Number of items per page",
+            "example": 20
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total number of pages",
+            "example": 5
+          },
+          "hasNextPage": {
+            "type": "boolean",
+            "description": "Whether there is a next page",
+            "example": true
+          },
+          "hasPreviousPage": {
+            "type": "boolean",
+            "description": "Whether there is a previous page",
+            "example": false
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data",
+          "total"
+        ]
+      },
+      "ModelInfoResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Success status",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Operation completed successfully"
+          },
+          "data": {
+            "type": "object",
+            "description": "Response data"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      },
+      "GenerateTextDto": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "Prompt for text generation",
+            "maxLength": 400000
+          }
+        },
+        "required": [
+          "prompt"
+        ]
+      },
+      "CustomAuthParamsParameterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Parameter name",
+            "example": "Authorization"
+          },
+          "in": {
+            "enum": [
+              "query",
+              "header"
+            ],
+            "type": "string",
+            "description": "Parameter location",
+            "example": "header"
+          },
+          "value": {
+            "type": "object",
+            "description": "Parameter value",
+            "example": "Bearer token123"
+          }
+        },
+        "required": [
+          "name",
+          "in",
+          "value"
+        ]
+      },
+      "CustomAuthParamsDto": {
+        "type": "object",
+        "properties": {
+          "baseUrl": {
+            "type": "string",
+            "description": "Base URL for custom authentication",
+            "example": "https://api.example.com"
+          },
+          "parameters": {
+            "description": "Custom authentication parameters",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomAuthParamsParameterDto"
+            }
+          },
+          "body": {
+            "type": "object",
+            "description": "Custom authentication body",
+            "additionalProperties": true
+          }
+        }
+      },
+      "CustomConnectionDataDto": {
+        "type": "object",
+        "properties": {
+          "authScheme": {
+            "enum": [
+              "OAUTH1",
+              "OAUTH2",
+              "API_KEY",
+              "BASIC",
+              "BEARER_TOKEN",
+              "BILLCOM_AUTH",
+              "GOOGLE_SERVICE_ACCOUNT",
+              "NO_AUTH",
+              "BASIC_WITH_JWT",
+              "CALCOM_AUTH",
+              "SERVICE_ACCOUNT",
+              "SAML",
+              "DCR_OAUTH"
+            ],
+            "type": "string",
+            "description": "Authentication scheme",
+            "example": "OAUTH2"
+          },
+          "toolkitSlug": {
+            "type": "string",
+            "description": "Toolkit slug",
+            "example": "slack"
+          },
+          "val": {
+            "type": "object",
+            "description": "Connection data value",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "authScheme",
+          "toolkitSlug",
+          "val"
+        ]
+      },
+      "ComposioManagedAuthConfigDto": {
+        "type": "object",
+        "description": "Auth configuration managed by Composio",
+        "additionalProperties": true
+      },
+      "CustomAuthConfigDto": {
+        "type": "object",
+        "description": "Custom auth configuration",
+        "additionalProperties": true
+      },
+      "ExecuteToolDto": {
+        "type": "object",
+        "properties": {
+          "connectedAccountId": {
+            "type": "string",
+            "description": "Connected account ID",
+            "example": "account_123"
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Entity ID",
+            "example": "entity_123"
+          },
+          "version": {
+            "type": "string",
+            "description": "Tool version",
+            "example": "2.0.0"
+          },
+          "customAuthParams": {
+            "description": "Custom authentication parameters",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CustomAuthParamsDto"
+              }
+            ]
+          },
+          "customConnectionData": {
+            "description": "Custom connection data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CustomConnectionDataDto"
+              }
+            ]
+          },
+          "arguments": {
+            "type": "object",
+            "description": "Tool arguments",
+            "additionalProperties": true
+          },
+          "text": {
+            "type": "string",
+            "description": "Natural language description of what to accomplish",
+            "example": "Send a message to the #general channel"
+          },
+          "allowTracing": {
+            "type": "boolean",
+            "description": "Allow tracing for debugging",
+            "example": false,
+            "default": false
+          },
+          "workspaceId": {
+            "type": "string"
+          }
+        }
+      },
+      "ExecuteToolResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Tool execution result data",
+            "additionalProperties": true
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if execution failed",
+            "example": "Invalid credentials"
+          },
+          "successful": {
+            "type": "boolean",
+            "description": "Whether the execution was successful",
+            "example": true
+          },
+          "sessionInfo": {
+            "type": "object",
+            "description": "Session information for debugging",
+            "additionalProperties": true
+          },
+          "logId": {
+            "type": "string",
+            "description": "Log ID for tracking execution",
+            "example": "log_123456789"
+          }
+        },
+        "required": [
+          "data",
+          "error",
+          "successful"
+        ]
+      },
+      "CreateToolDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Tool slug"
+          },
+          "name": {
+            "type": "string",
+            "description": "Tool name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Tool description"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Tool instructions"
+          },
+          "toolkitSlug": {
+            "type": "string",
+            "description": "Toolkit slug"
+          },
+          "inputParameters": {
+            "type": "object",
+            "description": "Input parameters schema"
+          },
+          "outputParameters": {
+            "type": "object",
+            "description": "Output parameters schema"
+          },
+          "noAuth": {
+            "type": "boolean",
+            "description": "Whether the tool requires no authentication",
+            "default": false
+          },
+          "scopes": {
+            "description": "Required scopes",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "description": "Tool tags",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isImportant": {
+            "type": "boolean",
+            "description": "Whether the tool is important",
+            "default": false
+          },
+          "popularityScore": {
+            "type": "number",
+            "description": "Popularity score",
+            "default": 0
+          },
+          "type": {
+            "enum": [
+              "action",
+              "poll",
+              "webhook"
+            ],
+            "type": "string",
+            "description": "Tool type",
+            "default": "action"
+          },
+          "localConfig": {
+            "type": "object",
+            "properties": {
+              "endpoint": {
+                "type": "string"
+              },
+              "method": {
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE",
+                  "PATCH",
+                  "HEAD",
+                  "OPTIONS"
+                ],
+                "type": "string"
+              },
+              "successIf": {
+                "type": "string"
+              },
+              "mapper": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "headers": {
+                "type": "object"
+              },
+              "timeout": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "description",
+          "toolkitSlug",
+          "inputParameters",
+          "outputParameters",
+          "localConfig"
+        ]
+      },
+      "UpdateToolDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Tool slug"
+          },
+          "name": {
+            "type": "string",
+            "description": "Tool name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Tool description"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Tool instructions"
+          },
+          "toolkitSlug": {
+            "type": "string",
+            "description": "Toolkit slug"
+          },
+          "inputParameters": {
+            "type": "object",
+            "description": "Input parameters schema"
+          },
+          "outputParameters": {
+            "type": "object",
+            "description": "Output parameters schema"
+          },
+          "noAuth": {
+            "type": "boolean",
+            "description": "Whether the tool requires no authentication",
+            "default": false
+          },
+          "scopes": {
+            "description": "Required scopes",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "description": "Tool tags",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isImportant": {
+            "type": "boolean",
+            "description": "Whether the tool is important",
+            "default": false
+          },
+          "popularityScore": {
+            "type": "number",
+            "description": "Popularity score",
+            "default": 0
+          },
+          "type": {
+            "enum": [
+              "action",
+              "poll",
+              "webhook"
+            ],
+            "type": "string",
+            "description": "Tool type",
+            "default": "action"
+          },
+          "localConfig": {
+            "type": "object",
+            "properties": {
+              "endpoint": {
+                "type": "string"
+              },
+              "method": {
+                "enum": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE",
+                  "PATCH",
+                  "HEAD",
+                  "OPTIONS"
+                ],
+                "type": "string"
+              },
+              "successIf": {
+                "type": "string"
+              },
+              "mapper": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "headers": {
+                "type": "object"
+              },
+              "timeout": {
+                "type": "number"
+              }
+            }
+          },
+          "isDisabled": {
+            "type": "boolean",
+            "description": "Whether the tool is disabled"
+          }
+        },
+        "required": [
+          "localConfig"
+        ]
+      },
+      "Toolkit1Dto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Toolkit slug",
+            "example": "slack"
+          }
+        },
+        "required": [
+          "slug"
+        ]
+      },
+      "CreateAuthConfigDto": {
+        "type": "object",
+        "properties": {
+          "toolkit": {
+            "description": "Toolkit information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Toolkit1Dto"
+              }
+            ]
+          },
+          "authConfig": {
+            "description": "Auth configuration",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ComposioManagedAuthConfigDto"
+              },
+              {
+                "$ref": "#/components/schemas/CustomAuthConfigDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "toolkit",
+          "authConfig"
+        ]
+      },
+      "CreateMcpServerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "description": "Name (slug): lowercase letters, numbers, hyphens. Unique per project.",
+            "example": "my-mcp-server"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the MCP server"
+          },
+          "mode": {
+            "enum": [
+              "NORMAL",
+              "SMART"
+            ],
+            "type": "string",
+            "description": "Mode of the MCP server: NORMAL (specific tools) or SMART (meta tools only)",
+            "default": "SMART"
+          },
+          "selectedTools": {
+            "description": "Tool slugs to attach to the MCP server (NORMAL mode). Stored in workspace internally.",
+            "example": [
+              "tool_slug_1",
+              "tool_slug_2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether the MCP server is public",
+            "default": false
+          },
+          "config": {
+            "type": "object",
+            "description": "Configuration for the MCP server (endpoint, authToken, etc.)"
+          },
+          "externalMcpConfigs": {
+            "description": "External MCP configs (name, url, headers?, tools) stored on workspace, same as workflow.",
+            "example": [
+              {
+                "name": "my-mcp",
+                "url": "https://example.com/mcp",
+                "tools": [
+                  "tool_a"
+                ]
+              }
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "LoadToolsFromUrlDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "External MCP server URL (POST endpoint for JSON-RPC tools/list)",
+            "example": "https://external-mcp.example.com/mcp"
+          },
+          "headers": {
+            "type": "object",
+            "description": "Custom headers to send with the request (e.g. Authorization, X-API-Key). Each service can require different headers.",
+            "example": {
+              "Authorization": "Bearer token",
+              "X-API-Key": "key"
+            }
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "UpdateMcpServerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "description": "Name (slug): lowercase letters, numbers, hyphens. Unique per project.",
+            "example": "my-mcp-server"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the MCP server"
+          },
+          "mode": {
+            "enum": [
+              "NORMAL",
+              "SMART"
+            ],
+            "type": "string",
+            "description": "Mode of the MCP server: NORMAL (specific tools) or SMART (meta tools only)"
+          },
+          "selectedTools": {
+            "description": "Tool slugs to attach (NORMAL mode). Same as create.",
+            "example": [
+              "tool_slug_1",
+              "tool_slug_2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether the MCP server is public"
+          },
+          "config": {
+            "type": "object",
+            "description": "Configuration for the MCP server (endpoint, authToken, etc.)"
+          },
+          "externalMcpConfigs": {
+            "description": "External MCP configs (name, url, headers?, tools) on workspace. Omit to leave unchanged.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "McpRequestDto": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "default": "2.0",
+            "description": "JSON-RPC version"
+          },
+          "method": {
+            "type": "string",
+            "description": "MCP method: tools/list, tools/call, etc.",
+            "default": "tools/list",
+            "example": "tools/list"
+          },
+          "params": {
+            "type": "object",
+            "description": "Method params (e.g. cursor for tools/list; name + arguments for tools/call)",
+            "example": {}
+          },
+          "id": {
+            "type": "object",
+            "description": "JSON-RPC request id (string or number)",
+            "example": "1"
+          }
+        }
+      },
+      "McpJsonRpcErrorDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "description": "JSON-RPC error code",
+            "example": -32602
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Invalid params"
+          },
+          "data": {
+            "type": "object",
+            "description": "Optional error data"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "McpJsonRpcResponseDto": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "description": "JSON-RPC version",
+            "example": "2.0"
+          },
+          "id": {
+            "type": "object",
+            "description": "Request id (echoed from request)"
+          },
+          "result": {
+            "type": "object",
+            "description": "Result (e.g. tools/list → { tools, nextCursor }; tools/call → { content, isError })"
+          },
+          "error": {
+            "description": "Error object when request failed",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/McpJsonRpcErrorDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "jsonrpc"
+        ]
+      },
+      "UpdateTaskDto": {
+        "type": "object",
+        "properties": {
+          "running": {
+            "type": "boolean",
+            "description": "Whether the task is running",
+            "example": true
+          },
+          "time": {
+            "enum": [
+              "* * * * * *",
+              "*/5 * * * * *",
+              "*/10 * * * * *",
+              "*/30 * * * * *",
+              "*/1 * * * *",
+              "*/5 * * * *",
+              "0 */5 * * * *",
+              "0 */10 * * * *",
+              "0 */13 * * * *",
+              "0 */15 * * * *",
+              "0 */30 * * * *",
+              "0 0-23/1 * * *",
+              "0 0-23/2 * * *",
+              "0 0-23/3 * * *",
+              "0 0-23/4 * * *",
+              "0 0-23/5 * * *",
+              "0 0-23/6 * * *",
+              "0 0-23/7 * * *",
+              "0 0-23/8 * * *",
+              "0 0-23/9 * * *",
+              "0 0-23/10 * * *",
+              "0 0-23/11 * * *",
+              "0 0-23/12 * * *",
+              "0 01 * * *",
+              "0 02 * * *",
+              "0 03 * * *",
+              "0 04 * * *",
+              "0 05 * * *",
+              "0 06 * * *",
+              "0 07 * * *",
+              "0 08 * * *",
+              "0 09 * * *",
+              "0 10 * * *",
+              "0 11 * * *",
+              "0 12 * * *",
+              "0 13 * * *",
+              "0 14 * * *",
+              "0 15 * * *",
+              "0 16 * * *",
+              "0 17 * * *",
+              "0 18 * * *",
+              "0 19 * * *",
+              "0 20 * * *",
+              "0 21 * * *",
+              "0 22 * * *",
+              "0 23 * * *",
+              "0 0 * * *",
+              "0 0 * * 0",
+              "0 0 * * 1-5",
+              "0 0 * * 6,0",
+              "0 0 1 * *",
+              "0 12 1 * *",
+              "0 */2 * * *",
+              "0 1-23/2 * * *",
+              "0 0 1 */2 *",
+              "0 0 1 */3 *",
+              "0 0 1 */6 *",
+              "0 0 1 1 *",
+              "0 */30 9-17 * * *",
+              "0 */30 9-18 * * *",
+              "0 */30 10-19 * * *",
+              "0 0 01 * * 1-5",
+              "0 0 02 * * 1-5",
+              "0 0 03 * * 1-5",
+              "0 0 04 * * 1-5",
+              "0 0 05 * * 1-5",
+              "0 0 06 * * 1-5",
+              "0 0 07 * * 1-5",
+              "0 0 08 * * 1-5",
+              "0 0 09 * * 1-5",
+              "0 30 09 * * 1-5",
+              "0 0 10 * * 1-5",
+              "0 0 11 * * 1-5",
+              "0 30 11 * * 1-5",
+              "0 0 12 * * 1-5",
+              "0 0 13 * * 1-5",
+              "0 0 14 * * 1-5",
+              "0 0 15 * * 1-5",
+              "0 0 16 * * 1-5",
+              "0 0 17 * * 1-5",
+              "0 0 18 * * 1-5",
+              "0 0 19 * * 1-5",
+              "0 0 20 * * 1-5",
+              "0 0 21 * * 1-5",
+              "0 0 22 * * 1-5",
+              "0 0 23 * * 1-5"
+            ],
+            "type": "string",
+            "description": "Cron expression for task scheduling",
+            "example": "0 */30 * * * *"
+          }
+        }
+      },
+      "WorkflowTriggerResponseDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "cron",
+              "trigger_tool"
+            ]
+          },
+          "expression": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "toolSlug": {
+            "type": "string"
+          },
+          "triggerToolInput": {
+            "type": "object"
+          },
+          "triggerId": {
+            "type": "string"
+          },
+          "toolkitName": {
+            "type": "string"
+          },
+          "toolkitLogo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "WorkflowToolDetailDto": {
+        "type": "object",
+        "properties": {
+          "toolSlug": {
+            "type": "string"
+          },
+          "toolName": {
+            "type": "string"
+          },
+          "toolkitName": {
+            "type": "string"
+          },
+          "toolkitLogo": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "toolSlug",
+          "toolName",
+          "toolkitName"
+        ]
+      },
+      "WorkflowListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "workflowType": {
+            "type": "string",
+            "enum": [
+              "static",
+              "agent"
+            ]
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/WorkflowTriggerResponseDto"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether this workflow (agent) is public for select in other projects"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version in form 1.0.x; incremented on each update"
+          },
+          "clonedFromWorkflowId": {
+            "type": "string",
+            "nullable": true
+          },
+          "clonedFromVersion": {
+            "type": "string",
+            "nullable": true,
+            "example": "1.0.1"
+          },
+          "executionCount": {
+            "type": "number"
+          },
+          "lastExecutedAt": {
+            "type": "string"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowToolDetailDto"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "projectId",
+          "workflowType",
+          "trigger",
+          "isActive",
+          "isPublic",
+          "version",
+          "executionCount",
+          "tools",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateAgentModelSettingsDto": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "Model identifier (e.g. openai/gpt-4o-mini)"
+          },
+          "temperature": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "Temperature 0-2"
+          },
+          "maxTokens": {
+            "type": "number",
+            "description": "Max tokens"
+          },
+          "cacheToolsAndPrompt": {
+            "type": "boolean",
+            "description": "Cache tools and prompt"
+          }
+        }
+      },
+      "CreateAgentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Agent name",
+            "default": "New Agent"
+          },
+          "description": {
+            "type": "string",
+            "description": "Agent description"
+          },
+          "agentPrompt": {
+            "type": "string",
+            "description": "System prompt / instructions for the agent"
+          },
+          "modelSettings": {
+            "description": "Model and generation settings",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateAgentModelSettingsDto"
+              }
+            ]
+          },
+          "toolSlugs": {
+            "description": "Tool slugs to attach to the agent",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether this agent is public (visible in other projects’ agent select)",
+            "default": false
+          },
+          "externalMcpConfigs": {
+            "type": "array",
+            "description": "External MCP configs for workspace: [{ name, url, headers?, tools }]. tools = selected tool slugs from that MCP.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "headers": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "tools": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "WorkflowNodeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "action",
+              "code",
+              "llm_agent",
+              "start",
+              "end",
+              "human_wait"
+            ]
+          },
+          "toolSlug": {
+            "type": "string"
+          },
+          "inputMapping": {
+            "type": "object"
+          },
+          "code": {
+            "type": "string"
+          },
+          "llmPrompt": {
+            "type": "string"
+          },
+          "outputSchema": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ]
+      },
+      "WorkflowEdgeResponseDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "condition": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ]
+      },
+      "WorkflowMetadata": {
+        "type": "object",
+        "properties": {}
+      },
+      "WorkflowConnectionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "connectionId": {
+            "type": "string"
+          },
+          "toolkitSlug": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workspaceId",
+          "connectionId",
+          "toolkitSlug",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "WorkflowResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowNodeResponseDto"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowEdgeResponseDto"
+            }
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/WorkflowTriggerResponseDto"
+          },
+          "workflowType": {
+            "type": "string",
+            "enum": [
+              "static",
+              "agent"
+            ]
+          },
+          "inputSchema": {
+            "type": "object"
+          },
+          "outputSchema": {
+            "type": "object"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Whether this workflow (agent) is public for select in other projects"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version in form 1.0.x; incremented on each update (for marketplace update check)"
+          },
+          "clonedFromWorkflowId": {
+            "type": "string",
+            "nullable": true,
+            "description": "If cloned from marketplace: source workflow id"
+          },
+          "clonedFromVersion": {
+            "type": "string",
+            "nullable": true,
+            "description": "Source workflow version at clone time (e.g. 1.0.1)"
+          },
+          "executionCount": {
+            "type": "number"
+          },
+          "successfulExecutionCount": {
+            "type": "number"
+          },
+          "failedExecutionCount": {
+            "type": "number"
+          },
+          "lastExecutedAt": {
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/WorkflowMetadata"
+          },
+          "connections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowConnectionDto"
+            }
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowToolDetailDto"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "sourceVersionLatest": {
+            "type": "string",
+            "example": "1.0.2"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "projectId",
+          "nodes",
+          "edges",
+          "trigger",
+          "workflowType",
+          "isActive",
+          "isPublic",
+          "version",
+          "executionCount",
+          "successfulExecutionCount",
+          "failedExecutionCount",
+          "connections",
+          "tools",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "trigger": {
+            "type": "object"
+          },
+          "workflowType": {
+            "type": "object"
+          },
+          "inputSchema": {
+            "type": "object"
+          },
+          "outputSchema": {
+            "type": "object"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isPublic": {
+            "type": "boolean"
+          },
+          "executionCount": {
+            "type": "number"
+          },
+          "lastExecutedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/WorkflowMetadata"
+          },
+          "activeStatus": {
+            "type": "boolean"
+          },
+          "toolSlugs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "externalMcpConfigs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ExecutionErrorDto": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string"
+          },
+          "nodeType": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "step": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "nodeId",
+          "nodeType",
+          "error"
+        ]
+      },
+      "ExecutionSummaryDto": {
+        "type": "object",
+        "properties": {
+          "completedNodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failedNodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExecutionErrorDto"
+            }
+          },
+          "totalNodes": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "completedNodes",
+          "failedNodes",
+          "errors",
+          "totalNodes"
+        ]
+      },
+      "WorkflowExecutionListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "workflowName": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "threadId": {
+            "type": "string",
+            "nullable": true
+          },
+          "assistantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputData": {
+            "type": "object",
+            "nullable": true
+          },
+          "outputData": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "paused",
+              "completed",
+              "failed",
+              "timeout"
+            ]
+          },
+          "currentNodeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "executionSummary": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ExecutionSummaryDto"
+              }
+            ]
+          },
+          "executionMode": {
+            "type": "string",
+            "enum": [
+              "test",
+              "production"
+            ]
+          },
+          "workflowType": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "static"
+            ],
+            "description": "Workflow type (from workflow)"
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "completedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "executionDurationMs": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "workflowId",
+          "userId",
+          "status",
+          "executionMode",
+          "startedAt"
+        ]
+      },
+      "WorkflowExecutionDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "workflowName": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "threadId": {
+            "type": "string",
+            "nullable": true
+          },
+          "assistantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputData": {
+            "type": "object",
+            "nullable": true
+          },
+          "outputData": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "paused",
+              "completed",
+              "failed",
+              "timeout"
+            ]
+          },
+          "currentNodeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "executionSummary": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ExecutionSummaryDto"
+              }
+            ]
+          },
+          "executionMode": {
+            "type": "string",
+            "enum": [
+              "test",
+              "production"
+            ]
+          },
+          "workflowType": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "static"
+            ],
+            "description": "Workflow type (from workflow)"
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "completedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "executionDurationMs": {
+            "type": "number",
+            "nullable": true
+          },
+          "state": {
+            "type": "object",
+            "description": "Current state from LangGraph"
+          }
+        },
+        "required": [
+          "id",
+          "workflowId",
+          "userId",
+          "status",
+          "executionMode",
+          "startedAt"
+        ]
+      },
+      "WorkflowExecutionStatusDto": {
+        "type": "object",
+        "properties": {
+          "threadId": {
+            "type": "string"
+          },
+          "workflowId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "paused",
+              "completed",
+              "failed",
+              "timeout"
+            ]
+          },
+          "currentNodeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "object"
+          },
+          "completedNodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failedNodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "threadId",
+          "workflowId",
+          "status",
+          "completedNodes",
+          "failedNodes",
+          "errors"
+        ]
+      },
+      "ResumeWorkflowExecutionDto": {
+        "type": "object",
+        "properties": {
+          "resumeValue": {
+            "type": "object",
+            "description": "Resume value for human-in-the-loop (true/false or object)"
+          },
+          "input": {
+            "type": "object",
+            "description": "Additional input data for resume"
+          }
+        }
+      },
+      "TriggerWorkflowDto": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "object",
+            "description": "Input data for workflow execution"
+          },
+          "mode": {
+            "type": "string",
+            "default": "production",
+            "description": "Execution mode",
+            "enum": [
+              "test",
+              "production"
+            ]
+          }
+        }
+      },
+      "UpsertTriggerInstanceDto": {
+        "type": "object",
+        "properties": {
+          "connectedAccountId": {
+            "type": "string",
+            "description": "ID of the connected account to use for the trigger",
+            "example": "con_123456"
+          },
+          "triggerConfig": {
+            "type": "object",
+            "description": "Configuration for the trigger instance",
+            "additionalProperties": true,
+            "example": {
+              "webhook_url": "https://myapp.com/webhook",
+              "events": [
+                "message.created",
+                "message.updated"
+              ],
+              "filters": {
+                "channel": "#general"
+              }
+            }
+          }
+        },
+        "required": [
+          "connectedAccountId",
+          "triggerConfig"
+        ]
+      },
+      "SearchThreadsDto": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "description": "Maximum number of results to return",
+            "example": 10
+          },
+          "offset": {
+            "type": "number",
+            "description": "Number of results to skip",
+            "example": 0
+          }
+        }
+      },
+      "CreateThreadDto": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "UpdateThreadDto": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "metadata"
+        ]
+      },
+      "MessageContentDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Content type",
+            "example": "text"
+          },
+          "text": {
+            "type": "string",
+            "description": "Text content",
+            "example": "Hello"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "MessageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Message ID"
+          },
+          "type": {
+            "type": "string",
+            "description": "Message type",
+            "example": "human"
+          },
+          "content": {
+            "description": "Message content",
+            "example": [
+              {
+                "type": "text",
+                "text": "Hello"
+              }
+            ],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageContentDto"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "content"
+        ]
+      },
+      "ThreadInputDto": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "description": "Messages array",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageDto"
+            }
+          }
+        },
+        "required": [
+          "messages"
+        ]
+      },
+      "StreamThreadRunDto": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "description": "Input data for the thread run",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ThreadInputDto"
+              }
+            ]
+          },
+          "stream_mode": {
+            "description": "Stream modes",
+            "example": [
+              "values",
+              "messages-tuple",
+              "custom"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stream_subgraphs": {
+            "type": "boolean",
+            "description": "Stream subgraphs",
+            "example": true,
+            "default": true
+          },
+          "stream_resumable": {
+            "type": "boolean",
+            "description": "Stream resumable",
+            "example": true,
+            "default": true
+          },
+          "assistant_id": {
+            "type": "string",
+            "description": "Assistant ID",
+            "example": "rube"
+          },
+          "on_disconnect": {
+            "type": "string",
+            "description": "Action on disconnect",
+            "example": "continue",
+            "default": "continue"
+          },
+          "workflowId": {
+            "type": "string",
+            "description": "Workflow ID (agent workflow) to use for this conversation",
+            "example": "uuid"
+          }
+        },
+        "required": [
+          "input"
+        ]
+      },
+      "ThreadHistoryDto": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Maximum number of history items to return",
+            "example": 10,
+            "default": 10
+          }
+        }
+      },
+      "CreateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "نام پروژه",
+            "example": "پروژه من"
+          },
+          "description": {
+            "type": "string",
+            "description": "توضیحات پروژه",
+            "example": "این یک پروژه تست است"
+          },
+          "triggerWebhookUrl": {
+            "type": "string",
+            "description": "آدرس وبهوک",
+            "example": "https://example.com/webhook"
+          },
+          "webhookSecret": {
+            "type": "string",
+            "description": "کلید امنیتی وبهوک",
+            "example": "secret"
+          },
+          "application": {
+            "type": "object",
+            "properties": {
+              "logo": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "name",
+          "application"
+        ]
+      },
+      "UpdateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "نام پروژه",
+            "example": "پروژه به‌روز شده"
+          },
+          "description": {
+            "type": "string",
+            "description": "توضیحات پروژه",
+            "example": "توضیحات به‌روز شده"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "وضعیت فعال بودن پروژه",
+            "example": true
+          },
+          "triggerWebhookUrl": {
+            "type": "string",
+            "description": "آدرس وبهوک",
+            "example": "https://example.com/webhook"
+          },
+          "webhookSecret": {
+            "type": "string",
+            "description": "کلید امنیتی وبهوک",
+            "example": "secret"
+          },
+          "application": {
+            "type": "object",
+            "properties": {
+              "logo": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "application"
+        ]
+      },
+      "AuthConfigFieldDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Field name",
+            "example": "client_id"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Field display name",
+            "example": "Client ID"
+          },
+          "default": {
+            "type": "string",
+            "nullable": true,
+            "description": "Default value",
+            "example": "your_client_id"
+          },
+          "type": {
+            "type": "string",
+            "description": "Field type",
+            "example": "string"
+          },
+          "description": {
+            "type": "string",
+            "description": "Field description",
+            "example": "Your application client ID"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Whether field is required",
+            "example": true
+          },
+          "legacyTemplateName": {
+            "type": "string",
+            "description": "Legacy template name",
+            "example": "client_id"
+          }
+        },
+        "required": [
+          "name",
+          "displayName",
+          "default",
+          "type",
+          "description",
+          "required",
+          "legacyTemplateName"
+        ]
+      },
+      "AuthConfigCreationFieldsDto": {
+        "type": "object",
+        "properties": {
+          "required": {
+            "description": "Required fields for auth config creation",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthConfigFieldDto"
+            }
+          },
+          "optional": {
+            "description": "Optional fields for auth config creation",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthConfigFieldDto"
+            }
+          }
+        },
+        "required": [
+          "required",
+          "optional"
+        ]
+      },
+      "AuthConfigFieldsDto": {
+        "type": "object",
+        "properties": {
+          "authConfigCreation": {
+            "description": "Fields for auth config creation",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthConfigCreationFieldsDto"
+              }
+            ]
+          },
+          "connectedAccountInitiation": {
+            "description": "Fields for connected account initiation",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthConfigCreationFieldsDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "authConfigCreation",
+          "connectedAccountInitiation"
+        ]
+      },
+      "AuthConfigDetailsDto": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "enum": [
+              "OAUTH1",
+              "OAUTH2",
+              "API_KEY",
+              "BASIC",
+              "BEARER_TOKEN",
+              "BILLCOM_AUTH",
+              "GOOGLE_SERVICE_ACCOUNT",
+              "NO_AUTH",
+              "BASIC_WITH_JWT",
+              "CALCOM_AUTH",
+              "SERVICE_ACCOUNT",
+              "SAML",
+              "DCR_OAUTH"
+            ],
+            "type": "string",
+            "description": "Authentication mode",
+            "example": "OAUTH2"
+          },
+          "fields": {
+            "description": "Authentication fields configuration",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthConfigFieldsDto"
+              }
+            ]
+          },
+          "proxy": {
+            "type": "object",
+            "description": "Proxy configuration",
+            "properties": {
+              "baseUrl": {
+                "type": "string",
+                "example": "https://api.example.com"
+              }
+            },
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Auth provider name",
+            "example": "oauth2"
+          },
+          "deprecatedAuthProviderDetails": {
+            "type": "object",
+            "description": "Deprecated auth provider details",
+            "properties": {
+              "authorization_url": {
+                "type": "string",
+                "example": "https://example.com/oauth/authorize"
+              },
+              "token_url": {
+                "type": "string",
+                "example": "https://example.com/oauth/token"
+              }
+            },
+            "nullable": true
+          }
+        },
+        "required": [
+          "mode",
+          "fields",
+          "name"
+        ]
+      },
+      "CreateToolkitDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100,
+            "description": "Toolkit slug identifier (unique)",
+            "example": "my-custom-toolkit"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Toolkit display name",
+            "example": "My Custom Toolkit"
+          },
+          "description": {
+            "type": "string",
+            "description": "Toolkit description",
+            "example": "A comprehensive toolkit for custom integrations"
+          },
+          "logo": {
+            "type": "string",
+            "description": "Toolkit logo URL",
+            "example": "https://example.com/logo.png"
+          },
+          "appUrl": {
+            "type": "string",
+            "description": "Application URL",
+            "example": "https://app.example.com"
+          },
+          "authSchemes": {
+            "description": "Authentication schemes",
+            "example": [
+              "OAUTH2",
+              "API_KEY"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "providerManagedAuthSchemes": {
+            "description": "Provider-managed authentication schemes (e.g. Local or Composio)",
+            "example": [
+              "OAUTH2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "noAuth": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this toolkit requires no authentication",
+            "example": false
+          },
+          "version": {
+            "type": "string",
+            "default": "1.0.0",
+            "description": "Toolkit version",
+            "example": "1.0.0"
+          },
+          "categories": {
+            "description": "Toolkit categories",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "baseUrl": {
+            "type": "string",
+            "description": "Base URL",
+            "example": "https://api.example.com"
+          },
+          "authConfigDetails": {
+            "description": "Auth config details",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthConfigDetailsDto"
+            }
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "description"
+        ]
+      },
+      "UpdateToolkitDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Toolkit display name",
+            "example": "Updated Toolkit Name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Toolkit description",
+            "example": "Updated description"
+          },
+          "logo": {
+            "type": "string",
+            "description": "Toolkit logo URL",
+            "example": "https://example.com/new-logo.png"
+          },
+          "appUrl": {
+            "type": "string",
+            "description": "Application URL",
+            "example": "https://new-app.example.com"
+          },
+          "authSchemes": {
+            "description": "Authentication schemes",
+            "example": [
+              "OAUTH2",
+              "API_KEY"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "providerManagedAuthSchemes": {
+            "description": "Provider-managed authentication schemes (e.g. Local or Composio)",
+            "example": [
+              "OAUTH2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "noAuth": {
+            "type": "boolean",
+            "description": "Whether this toolkit requires no authentication",
+            "example": false
+          },
+          "isDisabled": {
+            "type": "boolean",
+            "description": "Whether toolkit is disabled",
+            "example": false
+          },
+          "version": {
+            "type": "string",
+            "description": "Toolkit version",
+            "example": "1.1.0"
+          },
+          "categories": {
+            "description": "Toolkit categories",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "baseUrl": {
+            "type": "string",
+            "description": "Base URL",
+            "example": "https://api.example.com"
+          },
+          "authConfigDetails": {
+            "description": "Auth config details",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthConfigDetailsDto"
+            }
+          }
+        }
+      },
+      "ConnectedAccountStatus": {
+        "type": "string",
+        "enum": [
+          "INITIALIZING",
+          "INITIATED",
+          "ACTIVE",
+          "FAILED",
+          "EXPIRED",
+          "INACTIVE"
+        ]
+      },
+      "ConnectedAccountToolkitDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "Toolkit slug",
+            "example": "slack"
+          }
+        },
+        "required": [
+          "slug"
+        ]
+      },
+      "ConnectedAccountAuthConfigDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Auth config ID",
+            "example": "auth_config_123"
+          },
+          "authScheme": {
+            "enum": [
+              "OAUTH1",
+              "OAUTH2",
+              "API_KEY",
+              "BASIC",
+              "BEARER_TOKEN",
+              "BILLCOM_AUTH",
+              "GOOGLE_SERVICE_ACCOUNT",
+              "NO_AUTH",
+              "BASIC_WITH_JWT",
+              "CALCOM_AUTH",
+              "SERVICE_ACCOUNT",
+              "SAML",
+              "DCR_OAUTH"
+            ],
+            "type": "string",
+            "description": "Authentication scheme",
+            "example": "OAUTH2"
+          },
+          "isProviderManaged": {
+            "type": "boolean",
+            "description": "Whether the auth is provider-managed (by Local or Composio)",
+            "example": true
+          },
+          "isDisabled": {
+            "type": "boolean",
+            "description": "Whether the auth config is disabled",
+            "example": false
+          },
+          "deprecated": {
+            "type": "object",
+            "description": "Deprecated auth config info",
+            "properties": {
+              "uuid": {
+                "type": "string",
+                "format": "uuid",
+                "example": "123e4567-e89b-12d3-a456-426614174000"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "authScheme",
+          "isProviderManaged",
+          "isDisabled",
+          "deprecated"
+        ]
+      },
+      "ConnectedAccountStateDto": {
+        "type": "object",
+        "properties": {
+          "authScheme": {
+            "enum": [
+              "OAUTH1",
+              "OAUTH2",
+              "API_KEY",
+              "BASIC",
+              "BEARER_TOKEN",
+              "BILLCOM_AUTH",
+              "GOOGLE_SERVICE_ACCOUNT",
+              "NO_AUTH",
+              "BASIC_WITH_JWT",
+              "CALCOM_AUTH",
+              "SERVICE_ACCOUNT",
+              "SAML",
+              "DCR_OAUTH"
+            ],
+            "type": "string",
+            "description": "Authentication scheme",
+            "example": "OAUTH2"
+          },
+          "val": {
+            "type": "object",
+            "description": "State value - complex object with different structures based on auth scheme",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "authScheme",
+          "val"
+        ]
+      },
+      "ConnectedAccountDeprecatedDto": {
+        "type": "object",
+        "properties": {
+          "labels": {
+            "description": "Labels associated with the connected account",
+            "example": [
+              "production",
+              "staging"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uuid": {
+            "type": "string",
+            "description": "UUID of the connected account",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        },
+        "required": [
+          "labels",
+          "uuid"
+        ]
+      },
+      "ConnectedAccountItemDto": {
+        "type": "object",
+        "properties": {
+          "toolkit": {
+            "description": "Toolkit information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectedAccountToolkitDto"
+              }
+            ]
+          },
+          "authConfig": {
+            "description": "Auth configuration",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectedAccountAuthConfigDto"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "Connected account ID",
+            "example": "account_123"
+          },
+          "eUID": {
+            "type": "string",
+            "description": "External User ID (eUID)",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "status": {
+            "enum": [
+              "INITIALIZING",
+              "INITIATED",
+              "ACTIVE",
+              "FAILED",
+              "EXPIRED",
+              "INACTIVE"
+            ],
+            "type": "string",
+            "description": "Account status",
+            "example": "ACTIVE"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation timestamp",
+            "example": "2023-01-01T00:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update timestamp",
+            "example": "2023-01-01T00:00:00Z"
+          },
+          "state": {
+            "description": "Account state information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectedAccountStateDto"
+              }
+            ]
+          },
+          "statusReason": {
+            "type": "string",
+            "description": "Status reason",
+            "example": "Connection successful"
+          },
+          "isDisabled": {
+            "type": "boolean",
+            "description": "Whether the account is disabled",
+            "example": false
+          },
+          "testRequestEndpoint": {
+            "type": "string",
+            "description": "Test request endpoint",
+            "example": "https://api.example.com/test"
+          },
+          "deprecated": {
+            "description": "Deprecated information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ConnectedAccountDeprecatedDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "toolkit",
+          "authConfig",
+          "id",
+          "eUID",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "state",
+          "isDisabled",
+          "deprecated"
+        ]
+      },
+      "GetConnectedAccountsResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "List of connected accounts",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConnectedAccountItemDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Next page cursor",
+            "example": "eyJwYWdlIjoyLCJsaW1pdCI6MTB9"
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total number of pages",
+            "example": 5
+          },
+          "currentPage": {
+            "type": "number",
+            "description": "Current page number",
+            "example": 1
+          },
+          "totalItems": {
+            "type": "number",
+            "description": "Total number of items",
+            "example": 50
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor",
+          "totalPages",
+          "currentPage",
+          "totalItems"
+        ]
+      },
+      "CreateConnectedAccountLinkConnectionDataDto": {
+        "type": "object",
+        "properties": {
+          "subdomain": {
+            "type": "string",
+            "description": "Subdomain for the connection",
+            "example": "mycompany"
+          },
+          "yourDomain": {
+            "type": "string",
+            "description": "Your domain",
+            "example": "mycompany.com"
+          },
+          "region": {
+            "type": "string",
+            "description": "Region for the connection",
+            "example": "us-east-1"
+          },
+          "shop": {
+            "type": "string",
+            "description": "Shop identifier",
+            "example": "myshop"
+          },
+          "accountUrl": {
+            "type": "string",
+            "description": "Account URL",
+            "example": "https://mycompany.com"
+          },
+          "companyDomain": {
+            "type": "string",
+            "description": "Company domain",
+            "example": "mycompany.com"
+          },
+          "extension": {
+            "type": "string",
+            "description": "Extension for the connection",
+            "example": "v1"
+          },
+          "formApiBaseUrl": {
+            "type": "string",
+            "description": "Form API base URL",
+            "example": "https://api.mycompany.com"
+          },
+          "instanceEndpoint": {
+            "type": "string",
+            "description": "Instance endpoint",
+            "example": "https://instance.mycompany.com"
+          },
+          "apiUrl": {
+            "type": "string",
+            "description": "API URL",
+            "example": "https://api.mycompany.com"
+          },
+          "borneoDashboardUrl": {
+            "type": "string",
+            "description": "Borneo dashboard URL",
+            "example": "https://dashboard.borneo.com"
+          },
+          "proxyUsername": {
+            "type": "string",
+            "description": "Proxy username",
+            "example": "proxyuser"
+          },
+          "proxyPassword": {
+            "type": "string",
+            "description": "Proxy password",
+            "example": "proxypass"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Domain",
+            "example": "mycompany.com"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version",
+            "example": "1.0.0"
+          },
+          "dc": {
+            "type": "string",
+            "description": "Data center",
+            "example": "us-east-1"
+          },
+          "siteName": {
+            "type": "string",
+            "description": "Site name",
+            "example": "My Site"
+          },
+          "instanceName": {
+            "type": "string",
+            "description": "Instance name",
+            "example": "myinstance"
+          },
+          "accountId": {
+            "type": "string",
+            "description": "Account ID",
+            "example": "acc_123456"
+          },
+          "yourServer": {
+            "type": "string",
+            "description": "Your server",
+            "example": "server.mycompany.com"
+          },
+          "serverLocation": {
+            "type": "string",
+            "description": "Server location",
+            "example": "us-east-1"
+          },
+          "baseUrl": {
+            "type": "string",
+            "description": "Base URL",
+            "example": "https://mycompany.com"
+          },
+          "oAuthToken": {
+            "type": "string",
+            "description": "OAuth token",
+            "example": "oauth_token_123"
+          },
+          "authUri": {
+            "type": "string",
+            "description": "Auth URI",
+            "example": "https://auth.mycompany.com/oauth"
+          },
+          "oauthTokenSecret": {
+            "type": "string",
+            "description": "OAuth token secret",
+            "example": "oauth_secret_123"
+          },
+          "redirectUrl": {
+            "type": "string",
+            "description": "Redirect URL",
+            "example": "https://myapp.com/callback"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "Callback URL",
+            "example": "https://myapp.com/callback"
+          },
+          "oAuthVerifier": {
+            "type": "string",
+            "description": "OAuth verifier",
+            "example": "oauth_verifier_123"
+          },
+          "consumerKey": {
+            "type": "string",
+            "description": "Consumer key",
+            "example": "consumer_key_123"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message",
+            "example": "invalid_request"
+          },
+          "errorDescription": {
+            "type": "string",
+            "description": "Error description",
+            "example": "The request is invalid"
+          },
+          "expiredAt": {
+            "type": "string",
+            "description": "Expired at timestamp",
+            "example": "2024-12-31T23:59:59Z"
+          },
+          "statePrefix": {
+            "type": "string",
+            "description": "State prefix",
+            "example": "state_"
+          },
+          "longRedirectUrl": {
+            "type": "boolean",
+            "description": "Long redirect URL flag",
+            "example": true
+          },
+          "codeVerifier": {
+            "type": "string",
+            "description": "Code verifier",
+            "example": "code_verifier_123"
+          },
+          "finalRedirectUri": {
+            "type": "string",
+            "description": "Final redirect URI",
+            "example": "https://myapp.com/final"
+          },
+          "webhookSignature": {
+            "type": "string",
+            "description": "Webhook signature",
+            "example": "webhook_sig_123"
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Access token",
+            "example": "access_token_123"
+          },
+          "idToken": {
+            "type": "string",
+            "description": "ID token",
+            "example": "id_token_123"
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "Token type",
+            "example": "Bearer"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token",
+            "example": "refresh_token_123"
+          },
+          "expiresIn": {
+            "type": "object",
+            "description": "Expires in seconds",
+            "example": 3600
+          },
+          "scope": {
+            "type": "object",
+            "description": "Scope",
+            "example": "read write"
+          },
+          "genericApiKey": {
+            "type": "string",
+            "description": "Generic API key",
+            "example": "api_key_123"
+          },
+          "apiKey": {
+            "type": "string",
+            "description": "API key",
+            "example": "api_key_123"
+          },
+          "bearerToken": {
+            "type": "string",
+            "description": "Bearer token",
+            "example": "bearer_token_123"
+          },
+          "basicEncoded": {
+            "type": "string",
+            "description": "Basic encoded credentials",
+            "example": "dXNlcjpwYXNz"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username",
+            "example": "username"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password",
+            "example": "password"
+          },
+          "token": {
+            "type": "string",
+            "description": "Token",
+            "example": "token_123"
+          },
+          "composioLinkRedirectUrl": {
+            "type": "string",
+            "description": "Composio link redirect URL",
+            "example": "https://composio.dev/redirect"
+          },
+          "credentialsJson": {
+            "type": "string",
+            "description": "Credentials JSON",
+            "example": "{\"key\": \"value\"}"
+          },
+          "workspaceId": {
+            "type": "string",
+            "description": "Session ID",
+            "example": "session_123"
+          },
+          "devKey": {
+            "type": "string",
+            "description": "Development key",
+            "example": "dev_key_123"
+          },
+          "applicationId": {
+            "type": "string",
+            "description": "Application ID",
+            "example": "app_123"
+          },
+          "installationId": {
+            "type": "string",
+            "description": "Installation ID",
+            "example": "installation_123"
+          },
+          "privateKey": {
+            "type": "string",
+            "description": "Private key",
+            "example": "-----BEGIN PRIVATE KEY-----..."
+          }
+        }
+      },
+      "CreateConnectedAccountLinkDto": {
+        "type": "object",
+        "properties": {
+          "authConfigId": {
+            "type": "string",
+            "description": "Auth configuration ID",
+            "example": "auth_config_123"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "description": "Callback URL",
+            "example": "https://myapp.com/callback"
+          },
+          "connectionData": {
+            "description": "Connection data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateConnectedAccountLinkConnectionDataDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "authConfigId"
+        ]
+      },
+      "CreateConnectedAccountLinkResponseDto": {
+        "type": "object",
+        "properties": {
+          "linkToken": {
+            "type": "string",
+            "description": "Link token for authentication",
+            "example": "link_token_123456789"
+          },
+          "redirectUrl": {
+            "type": "string",
+            "description": "Redirect URL for user authentication",
+            "example": "https://auth.composio.dev/oauth/authorize?client_id=123&redirectUri=https://myapp.com/callback"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "Expiration timestamp for the link",
+            "example": "2024-12-31T23:59:59Z"
+          },
+          "connectedAccountId": {
+            "type": "string",
+            "description": "Connected account ID",
+            "example": "con_123456789"
+          }
+        },
+        "required": [
+          "redirectUrl"
+        ]
+      },
+      "GenerateExternalUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Name of the external user (optional)",
+            "example": "John Doe"
+          }
+        }
+      },
+      "AssignNameDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the external user",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Name to assign to the external user",
+            "example": "John Doe"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "CreateBlogCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Category name"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Slug (empty = derived from name)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description"
+          },
+          "displayOrder": {
+            "type": "number",
+            "description": "Display order"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateBlogCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Category name"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Slug"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description"
+          },
+          "displayOrder": {
+            "type": "number",
+            "description": "Display order"
+          }
+        }
+      },
+      "BlogGenerateContentDto": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "Prompt for content generation"
+          },
+          "currentContent": {
+            "type": "string",
+            "description": "Current editor content (for context)"
+          },
+          "selection": {
+            "type": "string",
+            "description": "Selected text in editor"
+          }
+        },
+        "required": [
+          "prompt"
+        ]
+      },
+      "BlogGeneratePostDto": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "Topic or prompt for the post (e.g. a post about SEO tips for blog)"
+          }
+        },
+        "required": [
+          "prompt"
+        ]
+      },
+      "BlogGenerateImageDto": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "Prompt for image generation"
+          }
+        },
+        "required": [
+          "prompt"
+        ]
+      },
+      "BlogGenerateVideoDto": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "Prompt for video generation"
+          }
+        },
+        "required": [
+          "prompt"
+        ]
+      },
+      "CreateBlogPostDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Post title"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Slug (empty = derived from title)"
+          },
+          "excerpt": {
+            "type": "string",
+            "description": "Excerpt"
+          },
+          "featuredImageId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Featured image file id (FilePath.id)"
+          },
+          "content": {
+            "type": "string",
+            "description": "HTML content (TipTap output)"
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "description": "Publish date (null = draft)"
+          },
+          "categoryIds": {
+            "description": "Category ids",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "content"
+        ]
+      },
+      "UpdateBlogPostDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Post title"
+          },
+          "slug": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Slug"
+          },
+          "excerpt": {
+            "type": "string",
+            "description": "Excerpt"
+          },
+          "featuredImageId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Featured image file id (FilePath.id)"
+          },
+          "content": {
+            "type": "string",
+            "description": "HTML content"
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "description": "Publish date or null for draft"
+          },
+          "categoryIds": {
+            "description": "Category ids",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

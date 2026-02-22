@@ -1,0 +1,31 @@
+---
+title: "API keys"
+description: "Create and manage API keys for the Flowra API"
+---
+
+## Where to create API keys
+
+1. Open the [Flowra Dashboard](https://flowra.dev).
+2. Sign in and select your **project** (or create one).
+3. Go to **Project → API Keys** (or **Settings → API Keys** in your project).
+4. Click **Create API key**, give it a name (e.g. "Production" or "Docs testing"), and copy the key.
+
+<Info>
+  API keys are scoped to a project. Each project has its own keys. You won’t see the full key again after creation — store it securely.
+</Info>
+
+## Using your key
+
+Use the key in the **x-api-key** header or as **Authorization: Bearer &lt;key&gt;** when calling the API. See [Authentication](/authentication) for examples.
+
+## Best practices
+
+- **One key per environment** — Use separate keys for development, staging, and production.
+- **Descriptive names** — Name keys so you know where they’re used (e.g. "CI", "Backend prod").
+- **Rotate regularly** — Create a new key, update your app, then revoke the old one.
+- **Revoke if exposed** — If a key is leaked, revoke it in the dashboard immediately and create a new one.
+
+## Next steps
+
+- [Authentication](/authentication) — How to send the key in requests.
+- [Quickstart](/quickstart) — First API call.

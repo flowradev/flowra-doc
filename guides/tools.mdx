@@ -1,0 +1,54 @@
+---
+title: "Tools"
+description: "List, execute, and manage tools for agents and workflows"
+---
+
+## Overview
+
+Tools are operations your agents and workflows can call (e.g. send a Slack message, create a calendar event). The API lets you list tools, get details by ID, execute a tool, and view execution logs.
+
+## List tools
+
+**GET** `/api/v1/tools` returns a paginated list of tools with filtering and sorting.
+
+| Query parameter | Description |
+|-----------------|-------------|
+| `q` | Search keyword |
+| `page`, `limit`, `offset` | Pagination (page 1-based; limit 1–100, default 20) |
+| `sortBy`, `sortOrder` | Sort by field (e.g. `createdAt`) and `ASC` or `DESC` |
+| `provider` | Filter by provider: `COMPOSIO` or `LOCAL` |
+| `toolkitSlug` | Filter by toolkit slug (e.g. `slack`) |
+| `toolSlugs` | Comma-separated tool slugs (overrides other filters) |
+| `authConfigIds` | Filter by auth config IDs |
+| `important` | `true` to return only important/featured tools |
+| `tags` | Filter by tags |
+| `includeDeprecated` | Include deprecated tools (default `false`) |
+| `cursor` | Cursor for cursor-based pagination |
+
+<CodeGroup>
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/tools?limit=10&toolkitSlug=slack" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+</CodeGroup>
+
+## Get tool by ID
+
+**GET** `/api/v1/tools/byId/{id}` returns one tool. Use the tool’s ID (or slug). Optional query params: `version`, `toolkitVersions`.
+
+## Execute a tool
+
+**POST** `/api/v1/tools/execute/{toolSlug}` runs a tool with the given arguments and auth.
+
+Request body: **ExecuteToolDto** (see [API reference](/api-reference) for schema). Include the tool slug in the path and the required inputs in the body.
+
+## Tool execution logs
+
+**GET** `/api/v1/tools/execution-logs` returns paginated execution logs. Non-admin users see only their own logs. Filter with `toolSlug`, `page`, `limit`, `sortBy`, `sortOrder`, and similar query params.
+
+## Related
+
+- [Auth configs](/guides/auth-configs) — Configure OAuth/API keys for tools.
+- [API reference: Tools](/api-reference) — Full request/response schemas.
