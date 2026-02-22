@@ -541,6 +541,182 @@
         ]
       }
     },
+    "/api/v1/toolkits": {
+      "get": {
+        "operationId": "ToolkitsController_getToolkits",
+        "x-apiKeyEnabled": true,
+        "summary": "List toolkits",
+        "description": "Retrieve a paginated list of toolkits. Use the `q` parameter to search by toolkit name or slug. Results include tools count per toolkit.",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search keyword for filtering toolkits by name or slug",
+            "schema": {
+              "example": "slack",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip (for offset-based pagination)",
+            "schema": {
+              "minimum": 0,
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to sort by (e.g. name, popularityScore)",
+            "schema": {
+              "example": "name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "DESC",
+              "enum": ["ASC", "DESC"],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Toolkits retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Toolkits"],
+        "security": [{ "x-api-key": [] }]
+      }
+    },
+    "/api/v1/toolkits/with-tools": {
+      "get": {
+        "operationId": "ToolkitsController_getToolkitsWithTools",
+        "x-apiKeyEnabled": true,
+        "summary": "List toolkits with nested tools",
+        "description": "Retrieve a paginated list of toolkits, each with its tools array. Use `q` to search by toolkit name, slug, or tool name/description. Use `selectedToolSlugs` to sort so toolkits containing those tools appear first.",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search keyword: filters by toolkit name, slug, or tool name/description",
+            "schema": {
+              "example": "send message",
+              "type": "string"
+            }
+          },
+          {
+            "name": "selectedToolSlugs",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated tool slugs; toolkits containing these tools are returned first",
+            "schema": {
+              "example": "slack_send_message,gmail_send",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Field to sort by",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "description": "Sort order",
+            "schema": {
+              "default": "DESC",
+              "enum": ["ASC", "DESC"],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Toolkits with tools retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Toolkits"],
+        "security": [{ "x-api-key": [] }]
+      }
+    },
     "/api/v1/auth_configs": {
       "get": {
         "operationId": "AuthConfigController_getAuthConfigs",

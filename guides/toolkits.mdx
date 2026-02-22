@@ -1,0 +1,98 @@
+---
+title: "Toolkits"
+description: "List and search toolkits via the API. Toolkits group tools (e.g. Slack, Gmail) for use in agents and workflows."
+---
+
+## Overview
+
+**Toolkits** are groups of tools (e.g. Slack, Gmail, GitHub). Each toolkit has a slug, name, description, logo, and a set of tools. You can list all toolkits or list toolkits with their nested tools, and **search** by name, slug, or (when using with-tools) by tool name or description.
+
+Use the **List toolkits** and **List toolkits with tools** endpoints with the `q` parameter to search between toolkits.
+
+## List toolkits
+
+**GET** `https://flowra.dev/api/v1/toolkits` returns a paginated list of toolkits. Each item includes slug, name, description, logo, tools count, auth info, and more.
+
+### Query parameters (list toolkits)
+
+| Parameter   | Type   | Description |
+|------------|--------|-------------|
+| `q`        | string | **Search keyword** — Filters toolkits by name or slug. Use this to search between toolkits. |
+| `page`     | number | Page number (1-based). Default: `1`. |
+| `limit`    | number | Items per page (1–100). Default: `20`. |
+| `offset`   | number | Number of items to skip (offset-based pagination). |
+| `sortBy`   | string | Field to sort by (e.g. `name`, `popularityScore`). |
+| `sortOrder`| string | `ASC` or `DESC`. Default: `DESC`. |
+
+### Example: list toolkits
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/toolkits?limit=20" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### Example: search toolkits by keyword
+
+Search for toolkits whose name or slug matches a keyword (e.g. "slack", "gmail", "calendar"):
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/toolkits?q=slack&limit=20" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### Example: sort by name
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/toolkits?sortBy=name&sortOrder=ASC&limit=50" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## List toolkits with nested tools
+
+**GET** `https://flowra.dev/api/v1/toolkits/with-tools` returns toolkits with a `tools` array for each. Useful for MCP tool selection or when you need both toolkit and tool metadata in one call. **Search** here applies to toolkit name, slug, and to tool name/description.
+
+### Query parameters (with-tools)
+
+| Parameter            | Type   | Description |
+|---------------------|--------|-------------|
+| `q`                 | string | **Search keyword** — Filters by toolkit name, slug, or by tool name/description. Use to search across toolkits and tools. |
+| `selectedToolSlugs` | string | Comma-separated tool slugs; toolkits that contain these tools are returned first. |
+| `page`              | number | Page number (1-based). |
+| `limit`             | number | Items per page (1–100). Default: `20`. |
+| `sortBy`            | string | Field to sort by. |
+| `sortOrder`         | string | `ASC` or `DESC`. |
+
+### Example: search toolkits and tools by keyword
+
+Find toolkits or tools matching "send message" or "calendar":
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/toolkits/with-tools?q=send%20message&limit=20" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+### Example: prioritize certain tools
+
+Get toolkits with nested tools, with toolkits containing the given tools first:
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/toolkits/with-tools?selectedToolSlugs=slack_send_message,gmail_send_email&limit=20" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Response shape
+
+Both endpoints return a **paginated** response with:
+
+- `data` — Array of items (each toolkit has `id`, `slug`, `name`, `description`, `logo`, `toolsCount`, etc.; with-tools items also include a `tools` array).
+- `meta` — Pagination info (e.g. `total`, `page`, `limit`).
+
+## Browsing in the dashboard
+
+You can browse and search toolkits in the [Flowra Dashboard](https://flowra.dev): open the toolkits or tools page and use the search box to filter toolkits and tools by name.
+
+## Related
+
+- [Tools](/guides/tools) — List and execute individual tools; filter tools by `toolkitSlug`.
+- [Tools catalog](/guides/tools-catalog) — Search and filter tools by keyword, toolkit, and tags.
+- [API reference: Toolkits](/api-reference) — Full request/response schemas for the toolkits endpoints.

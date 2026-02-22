@@ -1,0 +1,98 @@
+---
+title: "Tools catalog"
+description: "Browse and search 20,000+ tools by keyword, toolkit, tags, and filters via the API"
+---
+
+## Overview
+
+Flowra gives you access to **20,000+ tools** from many providers (e.g. Slack, Google, Airtable, GitHub). Tools are grouped into **toolkits** (e.g. `slack`, `gmail`). You can browse and search them via the **List tools** API and, in the [Flowra Dashboard](https://flowra.dev), use the visual tools catalog with search.
+
+This page describes how to **search and filter tools** with the API. To run a tool, see [Tools](/guides/tools#execute-a-tool).
+
+## List and search tools
+
+**GET** `https://flowra.dev/api/v1/tools` returns a paginated list of tools. Use query parameters to search and filter.
+
+### Search and filter parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `q` | string | **Search keyword** — Filters results by name, description, or other searchable fields. Use this to find tools by topic (e.g. `send message`, `calendar`, `email`). |
+| `toolkitSlug` | string | Filter by toolkit slug (e.g. `slack`, `gmail`, `github`). |
+| `toolSlugs` | string | Comma-separated list of specific tool slugs. When set, other filters are effectively overridden to return only these tools. Example: `slack_send_message,slack_get_channels`. |
+| `provider` | string | Filter by provider: `COMPOSIO` or `LOCAL`. |
+| `tags` | string | Filter by one or more tags (e.g. `productivity`, `communication`). |
+| `scopes` | string | Filter by required scopes. |
+| `authConfigIds` | string | Comma-separated auth config IDs — return only tools that work with these configs. |
+| `important` | string | Set to `true` to return only important/featured tools. |
+| `includeDeprecated` | boolean | Include deprecated tools (default `false`). |
+| `toolkitVersions` | string | Toolkit version; use `latest` or bracket notation for specific versions. |
+
+### Pagination and sorting
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `page` | number | Page number (1-based). Default: `1`. |
+| `limit` | number | Items per page (1–100). Default: `20`. |
+| `offset` | number | Number of items to skip (offset-based pagination). |
+| `cursor` | string | Cursor for cursor-based pagination (base64-encoded page and limit). |
+| `sortBy` | string | Field to sort by (e.g. `createdAt`, `name`). |
+| `sortOrder` | string | `ASC` or `DESC`. Default: `DESC`. |
+| `fields` | string | Comma-separated list of fields to include in the response. |
+| `selectedToolSlugs` | string | Comma-separated tool slugs; can be used to put certain tools first in the response. |
+
+## Example: search by keyword
+
+Find tools related to sending messages or email:
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/tools?q=send%20message&limit=20" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Example: filter by toolkit
+
+List only Slack tools:
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/tools?toolkitSlug=slack&limit=50" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Example: get specific tools by slug
+
+Return only the tools you need:
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/tools?toolSlugs=slack_send_message,slack_get_channels,gmail_send_email" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Example: search and paginate
+
+Search for calendar-related tools and get the second page:
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/tools?q=calendar&page=2&limit=10&sortBy=name&sortOrder=ASC" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Example: filter by tags
+
+Get tools tagged for productivity:
+
+```bash
+curl -X GET "https://flowra.dev/api/v1/tools?tags=productivity&limit=20" \
+  -H "x-api-key: YOUR_API_KEY"
+```
+
+## Browsing in the dashboard
+
+For a visual catalog with search and filters, use the [Flowra Dashboard](https://flowra.dev). You can search by name, browse by toolkit, and add tools to your workflows and agents without calling the API directly.
+
+## Next steps
+
+- [Toolkits](/guides/toolkits) — List and search toolkits (groups of tools) via the API.
+- [Tools](/guides/tools) — Get a tool by ID, execute a tool, and view execution logs.
+- [Auth configs](/guides/auth-configs) — Configure OAuth/API keys so tools can access third-party services.
+- [API reference: Tools](/api-reference) — Full request/response schemas for the tools endpoints.

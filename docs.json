@@ -29,6 +29,8 @@
             "group": "Core concepts",
             "pages": [
               "guides/tools",
+              "guides/tools-catalog",
+              "guides/toolkits",
               "guides/auth-configs",
               "guides/triggers",
               "guides/connected-accounts",
@@ -64,7 +66,7 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/flowra-dev",
+      "github": "https://github.com/flowradev/flowra-doc",
       "x": "https://x.com/flowra_dev"
     }
   }

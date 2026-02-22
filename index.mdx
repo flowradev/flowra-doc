@@ -5,13 +5,61 @@ description: "The all-in-one platform for building AI agents, workflows, and too
 
 ## What is Flowra?
 
-Flowra is the all-in-one platform for building AI agents, workflows, and tools. Create powerful AI agents, build complex workflows, and access 20,000+ tools — from any API to your custom tool in seconds. Use the API to manage tools, run workflows, connect accounts, and integrate with MCP and LLMs.
+Flowra is an **AI-powered platform** for building agents, workflows, and integrations. You use it to create AI agents and automations that can call thousands of ready-made tools (Slack, Google, calendars, databases, and more) or your own custom tools — all through a single API and dashboard.
+
+Flowra gives you:
+
+- **20,000+ tools** — From any major API to your custom tool, grouped into toolkits (e.g. Slack, Gmail, Airtable).
+- **Workflows & agents** — Orchestrate steps, run automations, and build AI agents that use these tools.
+- **Triggers** — Run workflows on a schedule or when events happen.
+- **Auth & connections** — OAuth, API keys, and connected accounts so tools can access third-party services securely.
+- **MCP** — Model Context Protocol server so MCP clients (Cursor, Claude, etc.) can use your project’s tools and context.
+- **Knowledge / RAG** — Add files and URLs for retrieval-augmented generation in your agents.
+
+You manage tools, auth configs, triggers, and connected accounts via the **Flowra API**, and you build and run workflows and agents in the **Flowra Dashboard**. Everything is tied to a **project** and secured with **API keys**.
+
+<AccordionGroup>
+  <Accordion title="Key terms">
+    - **Project** — A workspace in Flowra. API keys and resources (tools, auth configs, triggers, connected accounts) belong to a project.
+    - **Tool** — A single operation (e.g. send Slack message, create calendar event). Tools are grouped into **toolkits** (e.g. Slack, Gmail).
+    - **Auth config** — OAuth or API key configuration for a toolkit so Flowra can call that service on your behalf.
+    - **Connected account** — A user’s OAuth connection to a third-party service (e.g. their Slack or Google account), created via a link flow.
+    - **Trigger** — A rule that runs a workflow on a schedule or when an event occurs.
+    - **MCP** — Model Context Protocol; allows MCP clients (e.g. Cursor, Claude Desktop) to use your project’s tools and context.
+  </Accordion>
+</AccordionGroup>
+
+## Who is it for?
+
+Flowra is for **developers** and **teams** who want to:
+
+- Build AI agents that use real tools (send emails, update sheets, call APIs).
+- Automate workflows across multiple services without writing and maintaining every integration.
+- Expose their tools and workflows to MCP clients (e.g. Cursor, Claude Desktop).
+- Use one platform for auth, tools, triggers, and execution instead of stitching many services together.
+
+## How it works at a high level
+
+1. **Create a project** in the [Flowra Dashboard](https://flowra.dev) and get an **API key**.
+2. **Configure auth** — Create [auth configs](/guides/auth-configs) (OAuth or API keys) for the toolkits you need (e.g. Slack, Google).
+3. **Connect accounts** — Use [connected accounts](/guides/connected-accounts) so users can link their Slack, Google, etc. via OAuth.
+4. **Use tools** — [List and search tools](/guides/tools-catalog) via the API, then [execute](/guides/tools) them with the right auth and inputs.
+5. **Run workflows and agents** — In the dashboard you build workflows and agents that use these tools; you can trigger them via [triggers](/guides/triggers) or the API where supported.
+6. **Optional: MCP** — Configure an [MCP server](/guides/mcp) so Cursor, Claude, or other MCP clients can call your project’s tools.
+
+The API covers users, tools, auth configs, trigger instances, connected accounts, LLM generation, and MCP. The dashboard adds visual workflow editing, agent design, and a searchable tools catalog.
 
 ## Capabilities
 
 <CardGroup cols={2}>
   <Card title="Tools & toolkits" icon="wrench" href="/guides/tools">
     List, execute, and manage tools. Group tools into toolkits for reuse in agents and workflows.
+  </Card>
+  <Card title="Tools catalog" icon="search" href="/guides/tools-catalog">
+    Browse and search 20,000+ tools by keyword, toolkit, tags, and filters via the API.
+  </Card>
+  <Card title="Toolkits" icon="folder" href="/guides/toolkits">
+    List and search toolkits (groups of tools) with the <code>q</code> parameter via the API.
   </Card>
   <Card title="Authentication" icon="key" href="/authentication">
     Authenticate with API keys. Use the <code>x-api-key</code> header or <code>Authorization: Bearer</code>.

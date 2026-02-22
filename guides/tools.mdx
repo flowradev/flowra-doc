@@ -5,7 +5,11 @@ description: "List, execute, and manage tools for agents and workflows"
 
 ## Overview
 
-Tools are operations your agents and workflows can call (e.g. send a Slack message, create a calendar event). The API lets you list tools, get details by ID, execute a tool, and view execution logs.
+Tools are operations your agents and workflows can call (e.g. send a Slack message, create a calendar event). Flowra provides 20,000+ tools across many toolkits. The API lets you list and search tools, get details by ID, execute a tool, and view execution logs.
+
+## Browse and search tools
+
+To **search and filter** tools by keyword, toolkit, tags, and more, see the [Tools catalog](/guides/tools-catalog) guide. Use **GET** `/api/v1/tools` with the `q` parameter for search and `toolkitSlug`, `tags`, or `toolSlugs` for filtering.
 
 ## List tools
 
@@ -50,5 +54,7 @@ Request body: **ExecuteToolDto** (see [API reference](/api-reference) for schema
 
 ## Related
 
+- [Toolkits](/guides/toolkits) — List and search toolkits (groups of tools) with the API.
+- [Tools catalog](/guides/tools-catalog) — Browse and search tools by keyword, toolkit, and tags.
 - [Auth configs](/guides/auth-configs) — Configure OAuth/API keys for tools.
 - [API reference: Tools](/api-reference) — Full request/response schemas.
